@@ -1,0 +1,28 @@
+{
+ "project-name": "test",
+ "description": "a test",
+ "author": "kineut",
+ "git": false,
+ "files": [
+  {
+   "name": "test",
+   "ext": "c"
+  },
+  {
+   "name": "test42",
+   "ext": "c"
+  },
+  {
+   "name": "test42",
+   "ext": "h"
+  },
+  {
+   "name": "test43",
+   "ext": "c"
+  },
+  {
+   "name": "test43",
+   "ext": "h"
+  }
+ ]
+}
