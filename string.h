@@ -6,58 +6,36 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-// Dynamic string structure
-typedef struct String_t {
-    char * value;
-    long int length;
-    long int size;
-} String;
-
-/**
- * Build a new empty string from given length
- * @param length Max length of the string
+/** 
+ * Tests if two string are equals
+ * @param str1
+ * @param str2
+ * @return boolean
  */
-String* StringFromLength(long int length);
+short int strequals(const char * str1, const char * str2);
 
-/**
- * Build a new string from given string
- * @param str string value to copy
+/** 
+ * Allocate then copy a string to another one
+ * @param dst
+ * @param src
+ * @return boolean
  */
-String* StringFromValue(const char * str);
+char * astrcpy(const char * src);
 
-/**
- * Free a string struct
- * @param string String struct to freed
+/** 
+ * Allocate then copy a string to another one
+ * @param dst
+ * @param src
+ * @return boolean
  */
-void StringFree(String * str);
+int rastrcpy(char * dst, const char * src);
 
-/**
- * Append string value to a string
- * @param string String struct where append
- * @param string String value to append
+/** 
+ * Allocate a string
+ * @param size
+ * @return boolean
  */
-void StringAppend(String * str, const char * value);
-
-/**
- * Copy string value to a string
- * @param string String struct where append
- * @param string String value to append
- */
-void StringCopy(String * str, const char * value);
-
-/**
- * Copy string value to a string with range
- * @param string String struct where append
- * @param string String value to append
- * @param n Number of byte to copy
- */
-void StringNCopy(String * str, const char * value, long int n);
-
-/**
- * Return string value
- * @param string String struct
- */
-char* StringGetValue(String * str);
+char * strinit(int size);
 
 
 #endif // CODEGEN_PROJECT_HEADER_FILE

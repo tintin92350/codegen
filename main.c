@@ -97,6 +97,9 @@ int main(int argc, char ** argv)
             perror("\n\033[0;31m/!\\ You need to provide the name of the project at least ! (enter help to have helpfull commands)\033[0m\n\n");
             return EXIT_FAILURE;
         }
+        else {
+            
+        }
 
         printf("-> Project name : %s\n", argv[2]);
 

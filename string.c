@@ -1,69 +1,25 @@
 #include "string.h"
 
-String* StringFromLength(long int length)
-{
-    String* newString = (String*)malloc(sizeof(String));
-    newString->value = (char*)malloc(sizeof(char) * 0);
-    newString->length = 0;
-    newString->size = length;
+short int strequals(const char * str1, const char * str2) {
+    return strcmp(str1, str2) == 0;
 }
 
-String* StringFromValue(const char * str)
-{
-    long int length = strlen(str);
-    String* newString = (String*)malloc(sizeof(String));
-    newString->value = (char*)malloc(sizeof(char) * length);
-    strcpy(newString->value, str);
-    newString->length = length;
-    newString->size = length;
+char * astrcpy(const char * src) {
+    const int length = strlen(src);
+    char * dst = (char*)malloc(sizeof(char) * length + 1);
+    
+    strcpy(dst, src);
+    dst[length + 1] = '\0';
+
+    return dst;
 }
 
-void StringFree(String * str)
+int rastrcpy(char * dst, const char * src)
 {
-    free(str->value);
-    free(str);
+
 }
 
-void StringAppend(String * str, const char * value)
+char * strinit(int size)
 {
-    long int valueLength = strlen(value);
-    long int currentLength = strlen(str->value);
-
-    if (currentLength + valueLength >= str->size) {
-        str->size = currentLength + valueLength;
-        str->value = (char*)realloc(str->value, sizeof(char) * (currentLength + valueLength));
-    }
-
-    strcat(str->value, value);
-}
-
-void StringCopy(String * str, const char * value)
-{
-    long int valueLength = strlen(value);
-    long int currentLength = strlen(str->value);
-
-    if (str->size <= valueLength) {
-        str->size = valueLength;
-        str->value = (char*)realloc(str->value, sizeof(char) * valueLength);
-    }
-
-    strcpy(str->value, value);
-}
-
-void StringNCopy(String * str, const char * value, long int n)
-{
-    long int valueLength = n;
-    long int currentLength = strlen(str->value);
-
-    if (str->size <= valueLength) {
-        str->size = valueLength;
-        str->value = (char*)realloc(str->value, sizeof(char) * valueLength);
-    }
-
-    strncpy(str->value, value, n);    
-}
-
-char* StringGetValue(String * str)
-{
-    return str->value;
+    return (char*)malloc(sizeof(char) * size + 1);
 }

@@ -17,6 +17,10 @@ typedef struct CodeGenFile_t {
     File ** files;      // Files attached to the project
     int filesCount;     // Length of the files array
 
+    char * description;
+    char * author;
+    short int git;
+
 } CodeGenFile;
 
 /**
@@ -24,6 +28,15 @@ typedef struct CodeGenFile_t {
  * @param projectName string value that represent the project name
  */
 CodeGenFile* CodeGenFile_construct(const char * projectName);
+
+/**
+ * Build a new code gen file structure
+ * @param projectName string value that represent the project name
+ * @param description Little description of the project
+ * @param author Who is the author of the project / code
+ * @param initGit Need to init a git repository ?
+ */
+CodeGenFile* CodeGenFile_constructFull(const char * projectName, const char * description, const char * author, short int initGit);
 
 /**
  * Build a code gen file structure from a codegen json file

@@ -1,5 +1,7 @@
 #include "codegen.project.h"
 
+#include "string.h"
+
 CodeGenFile* CodeGenFile_construct(const char * projectName) {
     CodeGenFile* codeGenFile = (CodeGenFile*)malloc(sizeof(CodeGenFile));
     
@@ -9,12 +11,39 @@ CodeGenFile* CodeGenFile_construct(const char * projectName) {
     codeGenFile->filesCount = 0;
     codeGenFile->files = (File**)malloc(0);
 
+    codeGenFile->description = (char*)malloc(0);
+    codeGenFile->author = (char*)malloc(0);
+    codeGenFile->git = 0;
+
+    return codeGenFile;
+}
+
+CodeGenFile* CodeGenFile_constructFull(const char * projectName, const char * description, const char * author, short int initGit)
+{
+    CodeGenFile* codeGenFile = (CodeGenFile*)malloc(sizeof(CodeGenFile));
+    
+    codeGenFile->projectName = (char*)malloc(sizeof(char) * strlen(projectName));
+    strcpy(codeGenFile->projectName, projectName);
+
+    codeGenFile->filesCount = 0;
+    codeGenFile->files = (File**)malloc(0);
+
+    codeGenFile->description = (char*)malloc(sizeof(char) * strlen(description));
+    strcpy(codeGenFile->description, description);
+
+    codeGenFile->author = (char*)malloc(sizeof(char) * strlen(author));
+    strcpy(codeGenFile->author, author);
+
+    codeGenFile->git = initGit;
+
     return codeGenFile;
 }
 
 void CodeGenFile_free(CodeGenFile * codeGenFile)
 {
     free(codeGenFile->projectName);
+    free(codeGenFile->description);
+    free(codeGenFile->author);
     free(codeGenFile);
 }
 
@@ -130,6 +159,51 @@ CodeGenFile* CodeGenFile_constructFromFile(const char * filename)
 
         CodeGenFile_addFile2(codeGenFile, fileName, fileExt);
     }
+    
+    /// Retrieve project description from json data
+    json_t * projectDescriptionJson = json_object_get(root, "description");
+    
+    if (projectDescriptionJson) {
+
+        if (!json_is_string(projectDescriptionJson)) {
+            fprintf(stderr, "error: Description is not a string\n");
+            json_decref(root);
+            return NULL;
+        }
+
+        const char * projectDescription = json_string_value(projectDescriptionJson);
+        codeGenFile->description = astrcpy(projectDescription);
+    }
+    
+    /// Retrieve project author from json data
+    json_t * projectAuthorJson = json_object_get(root, "author");
+    
+    if (projectAuthorJson) {
+
+        if (!json_is_string(projectAuthorJson)) {
+            fprintf(stderr, "error: Author is not a string\n");
+            json_decref(root);
+            return NULL;
+        }
+
+        const char * projectAuthor = json_string_value(projectAuthorJson);
+        codeGenFile->author = astrcpy(projectAuthor);
+    }
+    
+    /// Retrieve project git from json data
+    json_t * projectGitJson = json_object_get(root, "description");
+
+    if (projectGitJson) {
+        /**
+        * @TODO Fix git not boolean error
+        if (!json_is_true(projectGitJson) && !json_is_false(projectGitJson)) {
+            fprintf(stderr, "error: git must be a boolean\n");
+            json_decref(root);
+            return NULL;
+        }*/
+
+        codeGenFile->git = json_is_true(projectGitJson) ? 1 : 0;
+    }
 
     json_decref(root);
 
@@ -222,10 +296,16 @@ int CodeGenFile_export(CodeGenFile * codeGenFile, const char * filename)
 {
     json_t * root = json_object();
     json_t * projectname = json_string(codeGenFile->projectName);
+    json_t * projectDescription = json_string(codeGenFile->description);
+    json_t * projectAuthor = json_string(codeGenFile->author);
+    json_t * projectGit = json_boolean(codeGenFile->git);
     json_t * files = json_array();
 
     json_object_set(root, "project-name", projectname);
-
+    json_object_set(root, "description", projectDescription);
+    json_object_set(root, "author", projectAuthor);
+    json_object_set(root, "git", projectGit);
+    
     for (int i = 0; i < codeGenFile->filesCount; i++) {
         json_t * file = json_object();
         json_t * file_name_json = json_string(codeGenFile->files[i]->name);
