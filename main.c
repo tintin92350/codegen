@@ -185,8 +185,9 @@ int main(int argc, char ** argv)
         printf("List of all command availables :\n");
         printf("--------------------------------\n");
         printf("new project_name\tGenerate hello world project with the name 'project_name'\n");
-        printf("add file_name   \tAdd a file with the name'file_name' to the project and updatz it\n");
-        printf("remake          \tRe generate makefile\n");
+        printf("add file_name   \tAdd files with the names 'file_name'.c and 'file_name'.h to the project and update it\n");
+        printf("remove file_name\t Remove a file with the name 'file_name' to the project and update it\n");
+        printf("remake          \tRe generate makefile from codegen project\n");
 
     } else {
         printf("\n\033[0;31m/!\\ Unknow command '%s'\033[0m\n\n", argv[1]);
