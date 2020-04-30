@@ -11,10 +11,14 @@
 // UNIX / Linux header
 #include <sys/stat.h>
 
+// Code gen project file
+#include "codegen.project.h"
+
 // Commands
 #define CMD_NEW "new"
 #define CMD_HELP "help"
 #define CMD_ADD "add"
+#define CMD_REMOVE "remove"
 #define CMD_REGENRATE_MAKEFILE "remake"
 
 void push(char ** arr, int index, char * value, int *size, int *capacity){
@@ -39,7 +43,7 @@ char * newString(const int size) {
 int isCodegenProject(const char * directory) {
     char * codegen_file = newString(strlen(directory) + 20);
     strcpy(codegen_file, directory);
-    strcat(codegen_file, "/codegen.properties");
+    strcat(codegen_file, "/.codegen");
 
     return access( codegen_file, F_OK ) != -1;
 }
@@ -52,6 +56,9 @@ int createMakefileProccess(const char *, const char *);
 
 int addFileToProject(const char *, const char *);
 int createFile(const char *, const char *, const int);
+
+int removeFileFromProject(const char *, const char *);
+int removeFile(const char *, const char *);
 
 int main(int argc, char ** argv)
 {
@@ -156,6 +163,16 @@ int main(int argc, char ** argv)
         if (!addFileToProject(workingDirectory, argv[2])) {
             perror("\n\033[0;31m/!\\ Can't add the file to the project\033[0m\n\n");
         }
+    } else if (strequals(argv[1], CMD_REMOVE)) {
+        
+        if (argc < 3) {
+            perror("\n\033[0;31m/!\\ You need to provide the name of the file to remove ! (enter help to have helpfull commands)\033[0m\n\n");
+            return EXIT_FAILURE;
+        }
+
+        if (!removeFileFromProject(workingDirectory, argv[2])) {
+            perror("\n\033[0;31m/!\\ Can't remove the file from the project\033[0m\n\n");
+        }
     } else if (strequals(argv[1], CMD_REGENRATE_MAKEFILE)) {
         if (!generateMakefile(workingDirectory)) {
             perror("\n\033[0;31m/!\\ An error occurred when trying to re-generate makefile\033[0m\n\n");
@@ -208,23 +225,17 @@ int createMainFileProccess(const char * workingDirectory, const char * filename)
 }
 
 int createCodeGenPropertiesProccess(const char * workingDirectory, const char * filename) {
-    int newProjectCodeGenFilePathLength = strlen(workingDirectory) + 20;
+    
+    int newProjectCodeGenFilePathLength = strlen(workingDirectory) + 10;
     char * newProjectCodeGenFilePath = newString(newProjectCodeGenFilePathLength);
     strcpy(newProjectCodeGenFilePath, workingDirectory);
-    strcat(newProjectCodeGenFilePath, "/codegen.properties");
+    strcat(newProjectCodeGenFilePath, "/.codegen");
 
-    FILE * codeGenFile = fopen(newProjectCodeGenFilePath, "w+");
+    CodeGenFile* codeGenFile = CodeGenFile_construct(filename);
 
-    if (codeGenFile == NULL) {
-        free(newProjectCodeGenFilePath);
-        return 0;
-    }
+    CodeGenFile_addFile2(codeGenFile, filename, "c");
 
-    fprintf(codeGenFile, "%s\n", filename);
-
-    fclose(codeGenFile);
-    
-    free(newProjectCodeGenFilePath);
+    CodeGenFile_export(codeGenFile, newProjectCodeGenFilePath);
 
     return 1;
 }
@@ -257,53 +268,31 @@ int addFileToProject(const char * workingDirectory, const char * filename)
         perror("\n\033[0;31m/!\\ Current working directory is not a codegen managed directory !\033[0m\n\n");
         return 0;
     }
-    
+   
     char * codegen_file_path = newString(strlen(workingDirectory) + 20);
     strcpy(codegen_file_path, workingDirectory);
-    strcat(codegen_file_path, "/codegen.properties");
+    strcat(codegen_file_path, "/.codegen");
+
+    CodeGenFile * codegenFile = CodeGenFile_constructFromFile(codegen_file_path);
+
     
-    FILE * codegen_file = fopen(codegen_file_path, "a+");
-
-    if (codegen_file == NULL) {
-       return 0;
-    }
-
-    char * buffer = NULL;
-    size_t len = 0;
-    ssize_t read;
-
-    while ((read = getline(&buffer, &len, codegen_file)) != -1) {
-        char * cBuffer = newString(read);
-        strncpy (cBuffer, buffer, read - 1);
-        cBuffer[read] = '\0';
-
-        printf("reading file : %s vs %s\n", cBuffer, filename);
-
-        if (strequals(cBuffer, filename)) {
-            printf("\033[0;31m/!\\ File '%s' already exists !\033[0m\n", filename);
-            return 0;
-        }
-    }
-
     if (!createFile(workingDirectory, filename, 0)) {
         printf("\033[0;31m/!\\ File '%s.c' can't be created !\033[0m\n", filename);
-        fclose(codegen_file);
         return 0;
     } else {
+        CodeGenFile_addFile2(codegenFile, filename, "c");
         printf("\033[0;32m-> File '%s.c' generated with success !\033[0m\n", filename);
     }
+
     if(!createFile(workingDirectory, filename, 1)) {
         printf("\033[0;31m/!\\ File '%s.h' can't be created !\033[0m\n", filename);
-        fclose(codegen_file);
         return 0;
     } else {
+        CodeGenFile_addFile2(codegenFile, filename, "h");
         printf("\033[0;32m-> File '%s.h' generated with success !\033[0m\n", filename);
     }
 
-    fputs(filename, codegen_file);
-    fputs("\n", codegen_file);
-
-    fclose(codegen_file);
+    CodeGenFile_export(codegenFile, codegen_file_path);
 
     generateMakefile(workingDirectory);
 
@@ -347,42 +336,9 @@ int generateMakefile(const char * workingDirectory) {
 
     char * codegen_file_path = newString(strlen(workingDirectory) + 20);
     strcpy(codegen_file_path, workingDirectory);
-    strcat(codegen_file_path, "/codegen.properties");
+    strcat(codegen_file_path, "/.codegen");
     
-    FILE * codegen_file = fopen(codegen_file_path, "a+");
-
-    if (codegen_file == NULL) {
-       return 0;
-    }
-
-    char * buffer = NULL;
-    size_t len = 0;
-    ssize_t read;
-
-    char projectName[60];
-    memset(projectName, 0, 60);
-    short int first = 1;
-
-    int files_size = 0;
-    int files_capacity = 5;
-    int i = 0;
-    char ** files = malloc(files_capacity * sizeof(char*));
-
-    while ((read = getline(&buffer, &len, codegen_file)) != -1) {
-        char * cBuffer = newString(read);
-        strncpy (cBuffer, buffer, read - 1);
-        cBuffer[read] = '\0';
-
-        if (first) {
-            strcpy(projectName, cBuffer);
-            first = 0;
-        }
-
-        push(files, i, cBuffer, &files_size, &files_capacity);
-        i++;
-    }
-
-    fclose(codegen_file);
+    CodeGenFile * codegenFile = CodeGenFile_constructFromFile(codegen_file_path);
 
     char * makefile_path = newString(strlen(workingDirectory) + 10);
     strcpy(makefile_path, workingDirectory);
@@ -390,28 +346,71 @@ int generateMakefile(const char * workingDirectory) {
 
     FILE * makefile_file = fopen(makefile_path, "w+");
 
-    for (int i = 0; i < files_size; i++) {
-        
-        // All
-        if (i == 0) {
-            fprintf(makefile_file, "%s : ", projectName);
+    fprintf(makefile_file, "%s : ", codegenFile->projectName);
 
-            for (int j = 0; j < files_size; j++) {
-                fprintf(makefile_file, "%s.o ", files[j]);
-            }
-
-            fprintf(makefile_file, "\n\t gcc -o %s ", projectName);
-            
-            for (int j = 0; j < files_size; j++) {
-                fprintf(makefile_file, "%s.o ", files[j]);
-            }
-
-            fprintf(makefile_file, "\n\n");
+    for (int j = 0; j < codegenFile->filesCount; j++) {
+        if (codegenFile->files[j]->type == 1) {
+            fprintf(makefile_file, "%s.o ", codegenFile->files[j]->name);
         }
+    }
 
-        fprintf(makefile_file, "%s.o : %s.c\n\tgcc -c %s.c\n\n", files[i], files[i], files[i]);
+    fprintf(makefile_file, "\n\t gcc -o %s ", codegenFile->projectName);
+    
+    for (int j = 0; j < codegenFile->filesCount; j++) {
+        if (codegenFile->files[j]->type == 1) {
+            fprintf(makefile_file, "%s.o ", codegenFile->files[j]->name);
+        }
+    }
 
+    fprintf(makefile_file, "\n\n");
+
+    for (int i = 0; i < codegenFile->filesCount; i++) {
+        if (codegenFile->files[i]->type == 1) {
+            fprintf(makefile_file, "%s.o : %s.c\n\tgcc -c %s.c\n\n", codegenFile->files[i]->name, codegenFile->files[i]->name, codegenFile->files[i]->name);
+        }
     }
 
     return 1;
+}
+
+int removeFileFromProject(const char * workingDirectory, const char * filename)
+{
+    if (!isCodegenProject(workingDirectory)) {
+        perror("\n\033[0;31m/!\\ Current working directory is not a codegen managed directory !\033[0m\n\n");
+        return 0;
+    }
+   
+    char * codegen_file_path = newString(strlen(workingDirectory) + 20);
+    strcpy(codegen_file_path, workingDirectory);
+    strcat(codegen_file_path, "/.codegen");
+
+    CodeGenFile * codegenFile = CodeGenFile_constructFromFile(codegen_file_path);
+
+    
+    if (!removeFile(workingDirectory, filename)) {
+        printf("\033[0;31m/!\\ File '%s' can't be removed !\033[0m\n", filename);
+        return 0;
+    } else {
+        File * file = File_construct2(filename);
+        if (CodeGenFile_removeFile(codegenFile, file))
+            printf("\033[0;32m-> File '%s' removed with success !\033[0m\n", filename);
+        else
+            printf("\033[0;31m/!\\ File '%s' can't be removed from project !\033[0m\n", filename);
+    }
+
+    CodeGenFile_export(codegenFile, codegen_file_path);
+
+    generateMakefile(workingDirectory);
+
+   return 1;
+}
+
+int removeFile(const char * workingDirectory, const char * filename)
+{
+    int removeFilePathLength = strlen(workingDirectory) + strlen(filename) + 4;
+    char * removeFilePath = newString(removeFilePathLength);
+    strcpy(removeFilePath, workingDirectory);
+    strcat(removeFilePath, "/");
+    strcat(removeFilePath, filename);
+    return remove(removeFilePath) == 0;
 }
