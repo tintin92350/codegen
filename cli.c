@@ -226,7 +226,8 @@ int handleCli(int argc, char ** argv)
         char * description = (char*)malloc(1);
         strcpy(description, "\0");
 
-        char * author = codegenFile->author;
+        char * author = (char *)malloc(sizeof(char) * strlen(codegenFile->author));
+        strcpy(author, codegenFile->author);
 
         short int initGit = 0;
 
@@ -284,14 +285,72 @@ int handleCli(int argc, char ** argv)
             generateMakefile(codegenFile, workingDirectory);
 
         } else if (strequals(type, "struct") || strequals(type, "s")) {
+
+            addStructToSolution(codegenFile, workingDirectory, name, description, author);
+
+            CodeGenFile_export(codegenFile, codegenFilePath);
+
+            generateMakefile(codegenFile, workingDirectory);
             
         } else if (strequals(type, "enum") || strequals(type, "e")) {
+
+            addEnumToSolution(codegenFile, workingDirectory, name, description, author);
+
+            CodeGenFile_export(codegenFile, codegenFilePath);
+
+            generateMakefile(codegenFile, workingDirectory);
             
-        } else if (strequals(type, "union") || strequals(type, "u")) {
-            
-        } else {
+        }  else {
             printf("\n\033[0;31m/!\\ Unknown element type '%s' (enter help to have helpfull commands)\033[0m\n\n", type);
             return 0;
+        }
+    }
+
+    // Remove files from project
+    else if(strequals(mainOperation, "remove") || strequals(mainOperation, "r")) {
+
+        if (!isCodegenSolution(workingDirectory)) {
+            perror("\n\033[0;31m/!\\ You need to be under a codegen generated directory to use this command\033[0m\n\n");
+            return 0;
+        }
+
+        if (argc < 3) {
+            perror("\n\033[0;31m/!\\ You need to provide at least one name ! (enter help to have helpfull commands)\033[0m\n\n");
+            return 0;
+        }
+        
+        CodeGenFile * codegenFile = openCodegenSolution(workingDirectory);
+        char * codegenFilePath = getAbsolutePath(".codegen", workingDirectory);
+
+        if (!codegenFile)
+            return 0;
+
+        const char * name = argv[2];
+
+        short int remainingArguments = argc - 3;
+        short int currentArgument = 3;
+
+        short int deleteFile = 0;
+
+        while (remainingArguments > 0) {
+            char * arg = argv[currentArgument];
+
+            if (isArgumentKey(arg)) {
+
+                if (strequals(arg, "-d") || strequals(arg, "--delete")) {
+                    deleteFile = 1;                    
+                }
+
+            } else {
+                printf("\033[0;31m/!\\ Wrong argument '%s'\033[0m\n", arg);
+            }
+            remainingArguments--;
+            currentArgument++;
+        }
+
+        if (removeFileFromSolution(codegenFile, name, workingDirectory, deleteFile)) {        
+            CodeGenFile_export(codegenFile, codegenFilePath);
+            generateMakefile(codegenFile, workingDirectory);
         }
     }
 }
@@ -350,6 +409,85 @@ int addFileToSolution(CodeGenFile * codegenFile, const char * workingDirectory, 
         CodeGenFile_addFile2(codegenFile, filename, "h");
         printf("\033[0;32m-> File '%s.h' generated with success !\033[0m\n", filename);
     }
+}
+
+int addStructToSolution(CodeGenFile * codegenFile, const char * workingDirectory, const char * structName, const char * description, const char * author)
+{
+    char * path = getAbsolutePath(structName, workingDirectory);
+    char * sourceFilename = getFilenameWithExtension(path, "c");
+    char * headerFilename = getFilenameWithExtension(path, "h");
+
+    const char * headerContentHack = "#ifndef %s_HEADER_FILE\n#define %s_HEADER_FILE\n\nstruct %s {\n\n};\n\ntypedef struct %s %s_t;\n\n#endif // %s_HEADER_FILE\n";
+    const char * sourceContentHack = "#include \"%s.h\"\n";
+
+    char * sourceContent = (char*)malloc(sizeof(char) * (strlen(sourceContentHack) + strlen(structName)));
+    char * headerContent = (char*)malloc(sizeof(char) * (strlen(headerContentHack) + 6 * strlen(structName)));
+
+    sprintf(sourceContent, sourceContentHack, structName);
+    sprintf(headerContent, headerContentHack, structName, structName, structName, structName, structName, structName);
+
+    char * headerContentTagged = appendHeaderCode(headerContent, structName, description, author);
+
+    printf("source file : %s\n", sourceFilename);
+
+    if (!createFile(sourceFilename, sourceContent)) {
+        printf("\033[0;31m/!\\ File '%s.c' can't be created !\033[0m\n", structName);
+        return 0;
+    } else {
+        CodeGenFile_addFile2(codegenFile, structName, "c");
+        printf("\033[0;32m-> File '%s.c' generated with success !\033[0m\n", structName);
+    }
+
+    if(!createFile(headerFilename, headerContentTagged)) {
+        printf("\033[0;31m/!\\ File '%s.h' can't be created !\033[0m\n", structName);
+        return 0;
+    } else {
+        CodeGenFile_addFile2(codegenFile, structName, "h");
+        printf("\033[0;32m-> File '%s.h' generated with success !\033[0m\n", structName);
+    }
+}
+
+int addEnumToSolution(CodeGenFile * codegenFile, const char * workingDirectory, const char * enumName, const char * description, const char * author)
+{
+    char * path = getAbsolutePath(enumName, workingDirectory);
+    char * headerFilename = getFilenameWithExtension(path, "h");
+
+    const char * headerContentHack = "#ifndef %s_HEADER_FILE\n#define %s_HEADER_FILE\n\nenum %s {};\n\n#endif // %s_HEADER_FILE\n";
+
+    char * headerContent = (char*)malloc(sizeof(char) * (strlen(headerContentHack) + 4 * strlen(enumName)));
+
+    sprintf(headerContent, headerContentHack, enumName, enumName, enumName, enumName);
+
+    char * headerContentTagged = appendHeaderCode(headerContent, enumName, description, author);
+
+    if(!createFile(headerFilename, headerContentTagged)) {
+        printf("\033[0;31m/!\\ File '%s.h' can't be created !\033[0m\n", enumName);
+        return 0;
+    } else {
+        CodeGenFile_addFile2(codegenFile, enumName, "h");
+        printf("\033[0;32m-> File '%s.h' generated with success !\033[0m\n", enumName);
+    }
+}
+
+int removeFileFromSolution(CodeGenFile * codegenFile, const char * filename, const char * workingDirectory, short int deleteFile)
+{
+    File * file = File_construct2(filename);
+    
+    if (CodeGenFile_removeFile(codegenFile, file))
+        printf("\033[0;32m-> File '%s' removed with success !\033[0m\n", filename);
+    else
+        printf("\033[0;31m/!\\ File '%s' can't be removed from project !\033[0m\n", filename);
+
+    if (deleteFile) {
+        if (!removeFile(workingDirectory, filename)) {
+            printf("\033[0;31m/!\\ File '%s' can't be removed !\033[0m\n", filename);
+            return 0;
+        } else {
+            printf("\033[0;32m-> File deleted with success\033[0m\n");
+        }
+    }
+
+    return 1;
 }
 
 int main(int argc, char **argv)

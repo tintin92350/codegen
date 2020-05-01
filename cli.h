@@ -50,4 +50,23 @@ CodeGenFile * openCodegenSolution(const char * workingDirectory);
  */
 int addFileToSolution(CodeGenFile * codegenFile, const char * workingDirectory, const char * filename, const char * description, const char * author);
 
+/**
+ * Add a struct to the project
+ * @param structName
+ */
+int addStructToSolution(CodeGenFile * codegenFile, const char * workingDirectory, const char * structName, const char * description, const char * author);
+
+
+/**
+ * Add an enum to the project
+ * @param enumName
+ */
+int addEnumToSolution(CodeGenFile * codegenFile, const char * workingDirectory, const char * enumName, const char * description, const char * author);
+
+/**
+ * Remove a file from the project
+ * @param filename
+ */
+int removeFileFromSolution(CodeGenFile * codegenFile, const char * filename, const char * workingDirectory, short int deleteFile);
+
 #endif // CLI_HEADER_FILE

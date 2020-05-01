@@ -69,3 +69,11 @@ char * appendHeaderCode(const char * content, const char * filename, const char 
 
     return nContent;
 }
+
+int removeFile(const char * workingDirectory, const char * filename)
+{
+    char * removeFilePath = getAbsolutePath(filename, workingDirectory);
+    int code = remove(removeFilePath);
+    free(removeFilePath);
+    return code  == 0;
+}

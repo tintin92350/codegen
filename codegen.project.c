@@ -259,12 +259,10 @@ int CodeGenFile_removeFile(CodeGenFile * codeGenFile, File * file)
             index = 1;
             File_free(codeGenFile->files[i]);
             codeGenFile->files[i] = NULL;
-            printf("file [%d] deleted\n", i);
         }
         else {
             codeGenFile->files[rewrite] = codeGenFile->files[i];
             rewrite++;
-            printf("file [%d] kept\n", i);
         }
     }
 

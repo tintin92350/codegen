@@ -34,4 +34,11 @@ int createFile(const char * filename, const char * content);
  */
 char * appendHeaderCode(const char * content, const char * filename, const char * description, const char * author);
 
+/**
+ * Remove a file of the fs
+ * @param workingDirectory
+ * @param filename
+*/
+int removeFile(const char *, const char *);
+
 #endif // FILE_SYSTEM_HEADER_FILE
