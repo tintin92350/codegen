@@ -117,6 +117,16 @@ int generateMakefile(CodeGenFile * codegenFile, const char * workingDirectory) {
 
 int handleCli(int argc, char ** argv)
 {
+    printf("\033[1;31m"
+            "      ___________ __  ______    \n"
+            "     / ____/ ___//  |/  /   |   \n"
+            "    / /    \\__ \\/ /|_/ / /| |   \n"
+            "   / /___ ___/ / /  / / ___ |   \n"
+            "   \\____//____/_/  /_/_/  |_|   \33[0m\n\n"
+            "   C Solution Management App    \n"
+            "   Beta Version                 \n\n");
+
+
     char workingDirectory[PATH_MAX];
 
     // Retrieve working directory
