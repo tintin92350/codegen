@@ -56,7 +56,7 @@ else
     echo "jansson library already installed, all is fine"
 fi
 
-if [ $janssonLibInstalled == 1 ] : then
+if [ $janssonLibInstalled == 1 ] ; then
     make
     make clear
     cp bin/codegen-cli /usr/bin
