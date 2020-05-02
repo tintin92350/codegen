@@ -37,5 +37,20 @@ int rastrcpy(char * dst, const char * src);
  */
 char * strinit(int size);
 
+/** 
+ * Erase all sames character
+ * @param string
+ * @param character
+ */
+char * streral(const char *, char);
+
+/** 
+ * Erase all sames character
+ * @param string
+ * @param character
+ * @param character
+ */
+int strrepc(char *, char, char);
+
 
 #endif // CODEGEN_PROJECT_HEADER_FILE

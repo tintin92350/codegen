@@ -41,4 +41,50 @@ char * appendHeaderCode(const char * content, const char * filename, const char 
 */
 int removeFile(const char *, const char *);
 
+/**
+ * Extract filename from file path
+ * @param filepath
+ * @return filename
+*/
+char * getFileNameFromFilePath(const char *);
+
+/**
+ * Extract file path without filename from file path
+ * @param filepath
+ * @return file path without filename
+*/
+char * getFilePath(const char *);
+
+/**
+ * Returns the file path deep (number of subfolder to reach the directory)
+ * @param filepath
+ * @return number of subfolder to reach directory
+*/
+int getFilePathDeep(const char *);
+
+/**
+ * Create all directories
+ * @param directoryPath
+*/
+int createDirectories(const char *);
+
+/**
+ * file exists ?
+ * @param filepath
+*/
+int fileExists(const char *);
+
+/**
+ * directory exists ?
+ * @param directoryPath
+*/
+int dirExists(const char *);
+
+/**
+ * Get directories back slash from directory to parent
+ * @param childDirectory
+ * @param activeDirectory
+*/
+char * getBackDirectoryFromChildToParent(const char *, const char *);
+
 #endif // FILE_SYSTEM_HEADER_FILE

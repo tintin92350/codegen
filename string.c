@@ -23,3 +23,35 @@ char * strinit(int size)
 {
     return (char*)malloc(sizeof(char) * size + 1);
 }
+
+char * streral(const char * string, char character)
+{
+    int charOccurrence = 0;
+    for (charOccurrence=0; string[charOccurrence]; string[charOccurrence]==character ? charOccurrence++ : *string++);
+
+    char * nString = strinit(strlen(string) - charOccurrence);
+
+    int write = 0;
+    int i = 0;
+
+    for (i = 0; i < strlen(string); i++) {
+        if (string[i] == character) {
+            continue;
+        }
+        else {
+            nString[write] = string[i];
+            write++;
+        }
+    }
+
+    return nString;
+}
+
+int strrepc(char *string, char character, char replace)
+{
+    for (int i = 0; i < strlen(string); i++) {
+        if (string[i] == character) {
+            string[i] = replace;
+        }
+    }
+}

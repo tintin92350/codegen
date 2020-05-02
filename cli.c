@@ -87,19 +87,32 @@ int generateMakefile(CodeGenFile * codegenFile, const char * workingDirectory) {
     if (makefile_file == NULL)
         return 0;
 
+    fprintf(makefile_file, "# Variable used to build the target\n"
+                            "OBJ_OUTPUT_DIR=build/obj\n"
+                            "EXE_OUTPUT_DIR=build\n\n"
+                            "# Create output directories\n"
+                            "$(shell mkdir -p $(OBJ_OUTPUT_DIR))\n"
+                            "$(shell mkdir -p $(EXE_OUTPUT_DIR))\n\n");
+
     fprintf(makefile_file, "%s : ", codegenFile->projectName);
 
     for (int j = 0; j < codegenFile->filesCount; j++) {
         if (codegenFile->files[j]->type == 1) {
-            fprintf(makefile_file, "%s.o ", codegenFile->files[j]->name);
+            char * nameOnly = astrcpy(codegenFile->files[j]->name);
+            strrepc(nameOnly, '/', '_');
+            fprintf(makefile_file, "%s.o ", nameOnly);
+            free(nameOnly);
         }
     }
 
-    fprintf(makefile_file, "\n\t gcc -o %s ", codegenFile->projectName);
+    fprintf(makefile_file, "\n\t gcc -o $(EXE_OUTPUT_DIR)/%s ", codegenFile->projectName);
     
     for (int j = 0; j < codegenFile->filesCount; j++) {
         if (codegenFile->files[j]->type == 1) {
-            fprintf(makefile_file, "%s.o ", codegenFile->files[j]->name);
+            char * nameOnly = astrcpy(codegenFile->files[j]->name);
+            strrepc(nameOnly, '/', '_');
+            fprintf(makefile_file, "$(OBJ_OUTPUT_DIR)/%s.o ", nameOnly);
+            free(nameOnly);
         }
     }
 
@@ -107,9 +120,20 @@ int generateMakefile(CodeGenFile * codegenFile, const char * workingDirectory) {
 
     for (int i = 0; i < codegenFile->filesCount; i++) {
         if (codegenFile->files[i]->type == 1) {
-            fprintf(makefile_file, "%s.o : %s.c\n\tgcc -c %s.c\n\n", codegenFile->files[i]->name, codegenFile->files[i]->name, codegenFile->files[i]->name);
+            char * nameOnly = astrcpy(codegenFile->files[i]->name);
+            strrepc(nameOnly, '/', '_');
+            fprintf(makefile_file, "%s.o : %s.c\n\tgcc -c %s.c -o $(OBJ_OUTPUT_DIR)/%s.o\n\n", nameOnly, codegenFile->files[i]->name, codegenFile->files[i]->name, nameOnly);
+            free(nameOnly);
         }
     }
+    
+    fprintf(makefile_file, "# Clean stage\n"
+                            "clean:\n"
+                            "\trm -r obj/\n"
+                            "\trm -r build/\n\n"
+                            "# Clear stage\n"
+                            "clear:\n"
+                            "\trm -r obj/\n");
 
     return 1;
 }
@@ -363,6 +387,59 @@ int handleCli(int argc, char ** argv)
             generateMakefile(codegenFile, workingDirectory);
         }
     }
+
+    // Re-create the makefile
+    else if (strequals(mainOperation, "remake")) {
+        
+        if (!isCodegenSolution(workingDirectory)) {
+            perror("\n\033[0;31m/!\\ You need to be under a codegen generated directory to use this command\033[0m\n\n");
+            return 0;
+        }
+        
+        CodeGenFile * codegenFile = openCodegenSolution(workingDirectory);
+        char * codegenFilePath = getAbsolutePath(".codegen", workingDirectory);
+
+        if (!codegenFile)
+            return 0;
+
+        if (!generateMakefile(codegenFile, workingDirectory)) {
+            perror("\n\033[0;31m/!\\ An error occurred when trying to re-create the makefile...\033[0m\n\n");
+            return 0;
+        } else {
+            printf("\033[0;32m-> Makefile generated with success !\033[0m\n");
+        }
+    }
+
+    // User needs some helps
+    else if(strequals(mainOperation, "help") || strequals(mainOperation, "h")) {
+
+        printf("\e[4mSOLUTION HANDLING :\e[0m\n\n");
+        
+        printf( "new|n [OPTIONS] [--description] [--author] [--git] \t Create a new project based on working directory\n\n"
+                "\t \e[4mOPTIONS :\e[0m\n"
+                "\t\tNAME \t Name of the project to create\n\n"
+                "\t --description : Add a description to the project solution otherwise empty (use -d as shortcut)\n"
+                "\t --author :      Add an author to the project solution otherwise empty (use -a as shortcut)\n"
+                "\t --git :         Specify if the project is under git control (use -g as shortcut)\n\n");
+        
+        printf( "add|a [OPTIONS] [--description] [--author] [--git] \t Add NEW element to solution\n\n"
+                "\t \e[4mOPTIONS :\e[0m\n"
+                "\t\tfiles (\e[4mf\e[0m) \t Add new pair of files (header and source)\n"
+                "\t\tstruct (\e[4ms\e[0m)\t Add new struct in header and attached source\n"
+                "\t\tenum (\e[4me\e[0m) \t Add new enum (header only)\n\n"
+                "\t --description : Add a specifical description to the file otherwise header is blank (use -d as shortcut)\n"
+                "\t --author :      Add a specifical author to the file otherwise take project author (can be empty) (use -a as shortcut)\n\n");
+
+        
+        printf( "remove|r [OPTIONS]                                  \t Remove a file from the solution \n\n"
+                "\t \e[4mOPTIONS :\e[0m\n"
+                "\t\tNAME \t relative path to the file\n\n");
+                
+        printf( "remake                                               \t Re-generate makefile from codegen solution \n\n");
+        
+    }
+
+    return 1;
 }
 
 int isArgumentKey(char * argument) 
@@ -397,10 +474,12 @@ int addFileToSolution(CodeGenFile * codegenFile, const char * workingDirectory, 
     char * sourceContent = (char*)malloc(sizeof(char) * (13 + strlen(filename)));
     char * headerContent = (char*)malloc(sizeof(char) * (100 + 3 * strlen(filename)));
 
-    sprintf(sourceContent, "#include \"%s.h\"\n", filename);
-    sprintf(headerContent, "#ifndef %s_HEADER_FILE\n#define %s_HEADER_FILE\n\n#endif // %s_HEADER_FILE\n", filename, filename, filename);
+    char * filenameOnly = getFileNameFromFilePath(filename);
 
-    char * headerContentTagged = appendHeaderCode(headerContent, filename, description, author);
+    sprintf(sourceContent, "#include \"%s.h\"\n", filenameOnly);
+    sprintf(headerContent, "#ifndef %s_HEADER_FILE\n#define %s_HEADER_FILE\n\n#endif // %s_HEADER_FILE\n", filenameOnly, filenameOnly, filenameOnly);
+
+    char * headerContentTagged = appendHeaderCode(headerContent, filenameOnly, description, author);
 
     printf("source file : %s\n", sourceFilename);
 
