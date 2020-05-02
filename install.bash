@@ -4,6 +4,8 @@
 # if conventional jansson library was 
 # already installed on the system
 janssonlib_files=$(ls /usr/lib/ | grep libjansson.so)
+janssonlib_files+= " "
+janssonlib_files+=$(ls /usr/local/lib/ | grep libjansson.so)
 janssonLibInstalled=1
 
 if [ -z "$janssonlib_files" ] ; then
