@@ -10,7 +10,7 @@ if [ -z "$janssonlib_files" ] ; then
     janssonLibInstalled=0
 fi
 
-if [ $janssonLibInstalled == 1 ] ; then
+if [ $janssonLibInstalled == 0 ] ; then
     janssonlib_url="http://www.digip.org/jansson/releases/jansson-2.12.tar.bz2"
 
     echo "Jansson library not found on your system"
