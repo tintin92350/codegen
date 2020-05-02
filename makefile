@@ -1,6 +1,6 @@
 # Variable used to build the target
 OBJ_OUTPUT_DIR=obj
-EXE_OUTPUT_DIR=build
+EXE_OUTPUT_DIR=bin
 
 # Create output directories
 $(shell mkdir -p $(OBJ_OUTPUT_DIR))

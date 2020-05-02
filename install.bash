@@ -59,8 +59,10 @@ else
 fi
 
 if [ $janssonLibInstalled == 1 ] ; then
+    
     make
     make clear
+
     cp bin/codegen-cli /usr/bin
 
     echo "codegen was installed with success"
