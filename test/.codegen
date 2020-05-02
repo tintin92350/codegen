@@ -1,0 +1,12 @@
+{
+ "project-name": "test",
+ "description": "",
+ "author": "",
+ "git": false,
+ "files": [
+  {
+   "name": "test",
+   "ext": "c"
+  }
+ ]
+}
