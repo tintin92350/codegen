@@ -7,8 +7,8 @@ $(shell mkdir -p $(EXE_OUTPUT_DIR))
 $(shell mkdir -p $(OBJ_OUTPUT_DIR))
 
 # Build stage for main entry point
-codegen-cli: main.o cli.o codegen.o file.o fs.o string.o
-	gcc -o $(EXE_OUTPUT_DIR)/codegen-cli $(OBJ_OUTPUT_DIR)/main.o $(OBJ_OUTPUT_DIR)/cli.o $(OBJ_OUTPUT_DIR)/codegen.o $(OBJ_OUTPUT_DIR)/file.o $(OBJ_OUTPUT_DIR)/fs.o $(OBJ_OUTPUT_DIR)/string.o -ljansson
+codegen-cli: main.o cli.o codegen.o file.o fs.o string.o vector.o
+	gcc -o $(EXE_OUTPUT_DIR)/codegen-cli $(OBJ_OUTPUT_DIR)/main.o $(OBJ_OUTPUT_DIR)/cli.o $(OBJ_OUTPUT_DIR)/codegen.o $(OBJ_OUTPUT_DIR)/file.o $(OBJ_OUTPUT_DIR)/fs.o $(OBJ_OUTPUT_DIR)/string.o $(OBJ_OUTPUT_DIR)/utils_vector.o -ljansson
 
 # Build stages for each file
 main.o: main.c
@@ -28,6 +28,10 @@ fs.o: FileSystem.c
 	
 string.o: string.c
 	gcc -c string.c -o $(OBJ_OUTPUT_DIR)/string.o
+
+	
+vector.o: utils/vector.c
+	gcc -c utils/vector.c -o $(OBJ_OUTPUT_DIR)/utils_vector.o
 
 # Clean stage
 clean:

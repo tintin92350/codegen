@@ -11,6 +11,8 @@ CodeGenFile* CodeGenFile_construct(const char * projectName) {
     codeGenFile->filesCount = 0;
     codeGenFile->files = (File**)malloc(0);
 
+    vec_init(&codeGenFile->libraries);
+
     codeGenFile->description = (char*)malloc(0);
     codeGenFile->author = (char*)malloc(0);
     codeGenFile->git = 0;
@@ -28,6 +30,8 @@ CodeGenFile* CodeGenFile_constructFull(const char * projectName, const char * de
     codeGenFile->filesCount = 0;
     codeGenFile->files = (File**)malloc(0);
 
+    vec_init(&codeGenFile->libraries);
+
     codeGenFile->description = (char*)malloc(sizeof(char) * strlen(description));
     strcpy(codeGenFile->description, description);
 
@@ -44,6 +48,7 @@ void CodeGenFile_free(CodeGenFile * codeGenFile)
     free(codeGenFile->projectName);
     free(codeGenFile->description);
     free(codeGenFile->author);
+    vec_deinit(&codeGenFile->libraries);
     free(codeGenFile);
 }
 
@@ -159,6 +164,40 @@ CodeGenFile* CodeGenFile_constructFromFile(const char * filename)
 
         CodeGenFile_addFile2(codeGenFile, fileName, fileExt);
     }
+
+    /// Retrieve project libraries from json data
+    json_t * librariesJson = json_object_get(root, "libraries");
+    
+    if (!librariesJson) {
+        fprintf(stderr, "error: libraries is not defined\n");
+        json_decref(root);
+        return NULL;
+    }
+
+    if(!json_is_array(librariesJson))
+    {
+        fprintf(stderr, "error: libraries is not an array\n");
+        json_decref(root);
+        return NULL;
+    }
+
+    /* array is a JSON array */
+    size_t libraryIndex;
+    json_t * libraryValueJson;
+
+    json_array_foreach(librariesJson, libraryIndex, libraryValueJson) {
+
+        if(!json_is_string(libraryValueJson))
+        {
+            fprintf(stderr, "error: file value is not a string\n");
+            json_decref(root);
+            return NULL;
+        }
+
+        const char * libraryName = json_string_value(libraryValueJson);
+
+        vec_push(&codeGenFile->libraries, (char*)libraryName);
+    }
     
     /// Retrieve project description from json data
     json_t * projectDescriptionJson = json_object_get(root, "description");
@@ -174,6 +213,8 @@ CodeGenFile* CodeGenFile_constructFromFile(const char * filename)
         const char * projectDescription = json_string_value(projectDescriptionJson);
         codeGenFile->description = astrcpy(projectDescription);
     }
+
+
     
     /// Retrieve project author from json data
     json_t * projectAuthorJson = json_object_get(root, "author");
@@ -204,8 +245,6 @@ CodeGenFile* CodeGenFile_constructFromFile(const char * filename)
 
         codeGenFile->git = json_is_true(projectGitJson) ? 1 : 0;
     }
-
-    json_decref(root);
 
     return codeGenFile;
 }
@@ -298,6 +337,7 @@ int CodeGenFile_export(CodeGenFile * codeGenFile, const char * filename)
     json_t * projectAuthor = json_string(codeGenFile->author);
     json_t * projectGit = json_boolean(codeGenFile->git);
     json_t * files = json_array();
+    json_t * libraries = json_array();
 
     json_object_set(root, "project-name", projectname);
     json_object_set(root, "description", projectDescription);
@@ -314,6 +354,13 @@ int CodeGenFile_export(CodeGenFile * codeGenFile, const char * filename)
     }
 
     json_object_set(root, "files", files);
+    
+    for (int i = 0; i < codeGenFile->libraries.length; i++) {
+        json_t * library_name_json = json_string(codeGenFile->libraries.data[i]);
+        json_array_append_new(libraries, library_name_json);
+    }
+
+    json_object_set(root, "libraries", libraries);
 
     json_dump_file(root, filename, JSON_INDENT(1));
 

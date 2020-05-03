@@ -10,10 +10,13 @@
 
 // UNIX / Linux header
 #include <sys/stat.h>
+#include <sys/ioctl.h>
 
 #include "FileSystem.h"
 
 #include "string.h"
+
+#include "utils/vector.h"
 
 int createNewProject(const char * projectName, const char * description, const char * author, short int initGit, const char * workingDirectory)
 {
@@ -114,6 +117,11 @@ int generateMakefile(CodeGenFile * codegenFile, const char * workingDirectory) {
             fprintf(makefile_file, "$(OBJ_OUTPUT_DIR)/%s.o ", nameOnly);
             free(nameOnly);
         }
+    }
+
+    int libraryIndex; char * library;
+    vec_foreach(&codegenFile->libraries, library, libraryIndex) {
+        fprintf(makefile_file, "-l%s ", library);
     }
 
     fprintf(makefile_file, "\n\n");
@@ -409,20 +417,80 @@ int handleCli(int argc, char ** argv)
             printf("\033[0;32m-> Makefile generated with success !\033[0m\n");
         }
     }
+    
+    // User needs to add a library
+    else if(strequals(mainOperation, "use") || strequals(mainOperation, "u")) {
+        
+        if (!isCodegenSolution(workingDirectory)) {
+            perror("\n\033[0;31m/!\\ You need to be under a codegen generated directory to use this command\033[0m\n\n");
+            return 0;
+        }   
+
+        if (argc < 3) {
+            perror("\n\033[0;31m/!\\ You need to provide the library name ! (enter help to have helpfull commands)\033[0m\n\n");
+            return 0;
+        }
+
+        char * library = argv[2];
+
+        CodeGenFile * codegenFile = openCodegenSolution(workingDirectory);
+        char * codegenFilePath = getAbsolutePath(".codegen", workingDirectory);
+
+        if (!codegenFile)
+            return 0;
+
+        int libraryIndex; char * librarySearch;
+        int exists = 0;
+        vec_foreach(&codegenFile->libraries, librarySearch, libraryIndex) {
+            if (strequals(librarySearch, library)) {
+                exists = 1;
+            }
+        }
+
+        if (exists == 0) {
+
+            vec_push(&codegenFile->libraries, library);
+            CodeGenFile_export(codegenFile, codegenFilePath);
+
+            printf("\033[0;32m-> Library '%s' added with success !\033[0m\n", library);
+
+            if (!generateMakefile(codegenFile, workingDirectory)) {
+                perror("\n\033[0;31m/!\\ An error occurred when trying to re-create the makefile...\033[0m\n\n");
+                return 0;
+            } else {
+                printf("\033[0;32m-> Makefile generated with success !\033[0m\n");
+            }
+        } else {
+            printf("\n\033[0;33m/!\\ library '%s' already added \033[0m\n\n");
+        }
+    }
 
     // User needs some helps
     else if(strequals(mainOperation, "help") || strequals(mainOperation, "h")) {
 
+        struct winsize w;
+        ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+
+        char * hr = (char*)malloc(sizeof(char) * w.ws_col + 1);
+
+        hr[0] = ' ';
+        for (int i = 1; i < w.ws_col-1; i++)
+            hr[i] = '-';
+        hr[w.ws_col-1] = ' ';
+        hr[w.ws_col] = '\0';
+
         printf("\e[4mSOLUTION HANDLING :\e[0m\n\n");
         
-        printf( "new|n [OPTIONS] [--description] [--author] [--git] \t Create a new project based on working directory\n\n"
+        printf( "• new|n [OPTIONS] [--description] [--author] [--git] \t Create a new project based on working directory\n\n"
                 "\t \e[4mOPTIONS :\e[0m\n"
                 "\t\tNAME \t Name of the project to create\n\n"
                 "\t --description : Add a description to the project solution otherwise empty (use -d as shortcut)\n"
                 "\t --author :      Add an author to the project solution otherwise empty (use -a as shortcut)\n"
                 "\t --git :         Specify if the project is under git control (use -g as shortcut)\n\n");
+
+        printf("%s\n\n", hr);
         
-        printf( "add|a [OPTIONS] [--description] [--author] [--git] \t Add NEW element to solution\n\n"
+        printf( "• add|a [OPTIONS] [--description] [--author] [--git] \t Add NEW element to solution\n\n"
                 "\t \e[4mOPTIONS :\e[0m\n"
                 "\t\tfiles (\e[4mf\e[0m) \t Add new pair of files (header and source)\n"
                 "\t\tstruct (\e[4ms\e[0m)\t Add new struct in header and attached source\n"
@@ -430,13 +498,28 @@ int handleCli(int argc, char ** argv)
                 "\t --description : Add a specifical description to the file otherwise header is blank (use -d as shortcut)\n"
                 "\t --author :      Add a specifical author to the file otherwise take project author (can be empty) (use -a as shortcut)\n\n");
 
+        printf("%s\n\n", hr);
+
         
-        printf( "remove|r [OPTIONS]                                  \t Remove a file from the solution \n\n"
+        printf( "• remove|r [OPTIONS]                                  \t Remove a file from the solution \n\n"
                 "\t \e[4mOPTIONS :\e[0m\n"
                 "\t\tNAME \t relative path to the file\n\n");
+
+        printf("%s\n\n", hr);
+
                 
-        printf( "remake                                               \t Re-generate makefile from codegen solution \n\n");
-        
+        printf( "• use|u [OPTIONS]                                     \t Use the specified library \n\n"
+                "\t \e[4mOPTIONS :\e[0m\n"
+                "\t\tNAME \t fullname of library to use\n\n");
+
+        printf("%s\n\n", hr);
+                
+        printf( "• remake                                               \t Re-generate makefile from codegen solution \n\n");
+
+        free(hr);        
+    }
+    else {
+        perror("\n\033[0;31m/!\\ unknown operation... please see --help or -h to get all commands\033[0m\n\n");
     }
 
     return 1;

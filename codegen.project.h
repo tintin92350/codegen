@@ -10,6 +10,9 @@
 // File
 #include "file.h"
 
+// Vector
+#include "utils/vector.h"
+
 // Code gen file data
 typedef struct CodeGenFile_t {
 
@@ -17,6 +20,8 @@ typedef struct CodeGenFile_t {
     File ** files;      // Files attached to the project
     int filesCount;     // Length of the files array
 
+    vec_str_t libraries;  // Libraries to use when compiling
+    
     char * description;
     char * author;
     short int git;
