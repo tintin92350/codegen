@@ -1,10 +1,10 @@
 # Variable used to build the target
-OBJ_OUTPUT_DIR=obj
+OBJ_OUTPUT_DIR=bin/obj
 EXE_OUTPUT_DIR=bin
 
 # Create output directories
-$(shell mkdir -p $(OBJ_OUTPUT_DIR))
 $(shell mkdir -p $(EXE_OUTPUT_DIR))
+$(shell mkdir -p $(OBJ_OUTPUT_DIR))
 
 # Build stage for main entry point
 codegen-cli: main.o cli.o codegen.o file.o fs.o string.o
