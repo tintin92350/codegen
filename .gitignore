@@ -1,5 +1,5 @@
 # Ignore executable file
-codegen
-cli
+codegen-cli
 obj/*
 bin/*
+.vscode/*
