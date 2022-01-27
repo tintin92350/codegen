@@ -14,6 +14,8 @@
 struct context
 {
     char workingDirectory[PATH_MAX];
+    int argc;
+    char** argv;
 };
 
 typedef struct context context_t;

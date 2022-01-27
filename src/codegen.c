@@ -13,6 +13,8 @@
 // Cli
 #include "cli/cli.h"
 
+#include "modules/CLI_IHC/ihc.h"
+
 /**
  * @brief Main entry of the program
  * 
@@ -32,7 +34,15 @@ int main(int argc, char **argv)
 
     printCodegenLogoAndVersion();
 
-    configureCliFromProgramArgument(argc, argv);
+    //configureCliFromProgramArgument(argc, argv);
+
+    string_array_t* out = reduceAttachedArguments(argc, argv);
+
+
+    for (int i = 0; i < out->size; i++)
+    {
+        printf("value : %s\n", out->values[i]);
+    }
 
     return EXIT_SUCCESS;
 }
