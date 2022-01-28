@@ -64,36 +64,24 @@ string_array_t *reduceAttachedArguments(int count, char **argumentsSource)
 
 short int checkArgumentChain(string_array_t *arguments)
 {
-
-    int checkingType = 0; // Checking for argument label
+    int lastCheckingType = -1; // Checking for argument label
 
     for (int i = 0; i < arguments->size; i++)
     {
-        switch (checkingType)
+        char argumentFirstLetter = arguments->values[i][0];
+
+        if (argumentFirstLetter != '-' && lastCheckingType != 0)
         {
-        case 0:
-            if (arguments->values[i][0] != '-')
-            {
-                return 0;
-            }
-            else
-            {
-                checkingType = 1;
-            }
-            break;
-        case 1:
-        
-            if (arguments->values[i][0] != '-')
-            {
-                return 0;
-            }
-            else
-            {
-                checkingType = 1;
-            }
-        break;
+            return 0;
         }
+
+        if (argumentFirstLetter == '-')
+            lastCheckingType = 0;
+        else
+            lastCheckingType = 1;
     }
+
+    return 1;
 }
 
 short int checkIfArgumentIsAttached(char *argument)

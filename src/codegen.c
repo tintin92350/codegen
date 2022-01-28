@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 11:29:12
+ * @lastModifiedTime: 2022-01-28 11:35:24
  */
 
 // Standard library
@@ -36,13 +36,14 @@ int main(int argc, char **argv)
 
     //configureCliFromProgramArgument(argc, argv);
 
-    string_array_t* arguments = reduceAttachedArguments(argc, argv);
-
+    string_array_t *arguments = reduceAttachedArguments(argc, argv);
 
     for (int i = 0; i < arguments->size; i++)
     {
         printf("value : %s\n", arguments->values[i]);
     }
+
+    printf("is well formed : %d\n", checkArgumentChain(arguments));
 
     return EXIT_SUCCESS;
 }
