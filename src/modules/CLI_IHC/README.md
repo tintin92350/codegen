@@ -30,7 +30,7 @@ Invalid syntax:
 
 `test2` is not placed right because not attached to any label.
 
-### Step 3: Check business erros
+### Step 3: Check business errors
 
 All program have its own business syntax and rules.
 For example the argument `-g` may have only discret element like `component` and `class`. So we need to warn the user that the argument content is not correct.

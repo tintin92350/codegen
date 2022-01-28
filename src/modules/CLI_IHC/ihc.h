@@ -2,22 +2,13 @@
  * @author: Quentin ROIC <quentin.rodic.pro@outlook.fr>
  * @date: 27-01-2022 9:11:21 am
  * @lastModifiedBy: Quentin ROSIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 19:11:13
+ * @lastModifiedTime: 2022-01-28 19:59:06
  */
 
 #ifndef CLI_IHC
 #define CLI_IHC
 
 #include "../../utils/string.array.h"
-
-struct argument_rule
-{
-    char *label;
-    char *labelShortcut;
-    string_array_t correctValues;
-};
-
-typedef struct argument_rule argument_rule_t;
 
 /**
  * @brief STEP 01 of argument processing
@@ -28,9 +19,17 @@ typedef struct argument_rule argument_rule_t;
  * @param arguments 
  * @return string_array_t 
  */
-string_array_t reduceAttachedArguments(int count, char **arguments);
+string_array_t reduce_attached_arguments(int count, char **arguments);
 
-short int checkArgumentChain(string_array_t *arguments);
+/**
+ * @brief STEP 02 of argument processing
+ * 
+ * Check the syntax of arguments based on argument's position, etc.
+ * 
+ * @param arguments 
+ * @return short int 
+ */
+short int check_arguments_syntax(string_array_t *arguments);
 
 /**
  * @brief Check if an argument is formed with the form of --LABEL=CONTENT
@@ -38,13 +37,17 @@ short int checkArgumentChain(string_array_t *arguments);
  * @param argument Argument to check (string)
  * @return short int 1 is true, 0 is false OR exit
  */
-short int checkIfArgumentIsAttached(char *argument);
+short int check_if_argument_is_attached(char *argument);
 
-void splitAttachedArgumentInTwoString(char *src, char **dst1, char **dst2);
-
-char **removedExeArgumentArray(int count, char **arguments);
-
-argument_rule_t createArgumentRule(const char *label, const char *labelShortcut);
-int addValueToArgumentRule(argument_rule_t *argumentRule, const char *value);
+/**
+ * @brief 
+ * 
+ * Pass argc and argv then returns the flushed string array
+ * 
+ * @param count 
+ * @param arguments 
+ * @return char** 
+ */
+char **flush_argument_string_array(int count, char **arguments);
 
 #endif // CLI_IHC

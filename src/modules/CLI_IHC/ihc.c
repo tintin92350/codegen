@@ -6,12 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-string_array_t reduceAttachedArguments(int count, char **argumentsSource)
+#include "../../utils/string.h"
+
+string_array_t reduce_attached_arguments(int count, char **argumentsSource)
 {
     if (count == 0)
         return string_array_empty();
 
-    char **arguments = removedExeArgumentArray(count, argumentsSource);
+    char **arguments = flush_argument_string_array(count, argumentsSource);
     count--;
 
     string_array_t reducedArgumentArray = string_array_init(count);
@@ -20,7 +22,7 @@ string_array_t reduceAttachedArguments(int count, char **argumentsSource)
     {
         char *argument = arguments[i];
 
-        if (checkIfArgumentIsAttached(argument))
+        if (check_if_argument_is_attached(argument))
             reducedArgumentArray.size++;
     }
 
@@ -30,10 +32,10 @@ string_array_t reduceAttachedArguments(int count, char **argumentsSource)
     int extraCursor = 0;
     while (i < count)
     {
-        if (checkIfArgumentIsAttached(arguments[i]))
+        if (check_if_argument_is_attached(arguments[i]))
         {
             char *str1 = NULL, *str2 = NULL;
-            splitAttachedArgumentInTwoString(arguments[i], &str1, &str2);
+            split_string_in_two(arguments[i], &str1, &str2, "=");
 
             if (str1 != NULL && str2 != NULL)
             {
@@ -61,7 +63,7 @@ string_array_t reduceAttachedArguments(int count, char **argumentsSource)
     return reducedArgumentArray;
 }
 
-short int checkArgumentChain(string_array_t *arguments)
+short int check_arguments_syntax(string_array_t *arguments)
 {
     int lastCheckingType = -1; // Checking for argument label
 
@@ -83,7 +85,7 @@ short int checkArgumentChain(string_array_t *arguments)
     return 1;
 }
 
-short int checkIfArgumentIsAttached(char *argument)
+short int check_if_argument_is_attached(char *argument)
 {
     regex_t regex;
     int reti;
@@ -124,14 +126,16 @@ short int checkIfArgumentIsAttached(char *argument)
     }
 }
 
-void splitAttachedArgumentInTwoString(char *src, char **dst1, char **dst2)
-{
-    *dst1 = strtok(src, "=");
-
-    *dst2 = strtok(NULL, "=");
-}
-
-char **removedExeArgumentArray(int count, char **arguments)
+/**
+ * @brief 
+ * 
+ * Remove the executable from the argument array
+ * 
+ * @param count 
+ * @param arguments 
+ * @return char** 
+ */
+char **flush_argument_string_array(int count, char **arguments)
 {
     char **array = (char **)malloc(sizeof(char *) * (count - 1));
 
@@ -139,45 +143,4 @@ char **removedExeArgumentArray(int count, char **arguments)
         array[i - 1] = arguments[i];
 
     return array;
-}
-
-argument_rule_t createArgumentRule(const char *label, const char *labelShortcut)
-{
-    argument_rule_t argument_rule;
-
-    argument_rule.label = NULL;
-    argument_rule.labelShortcut = NULL;
-    argument_rule.correctValues = string_array_empty();
-
-    if (label == NULL)
-        return argument_rule;
-
-    int labelLength = strlen(label);
-    argument_rule.label = (char *)malloc(sizeof(char) * labelLength);
-    strcpy(argument_rule.label, label);
-
-    if (labelShortcut != NULL)
-    {
-        int labelShortcutLength = strlen(labelShortcut);
-        argument_rule.labelShortcut = (char *)malloc(sizeof(char) * labelShortcutLength);
-        strcpy(argument_rule.labelShortcut, labelShortcut);
-    }
-
-    return argument_rule;
-}
-
-int addValueToArgumentRule(argument_rule_t *argument_rule, const char *value)
-{
-    if (argument_rule == NULL)
-        return 0;
-
-    if (string_array_is_empty(&argument_rule->correctValues))
-        argument_rule->correctValues = string_array_init(1);
-    else
-        string_array_resize(&argument_rule->correctValues, argument_rule->correctValues.size + 1);
-
-    argument_rule->correctValues.values[argument_rule->correctValues.size - 1] = (char *)malloc(sizeof(char) * strlen(value));
-    strcpy(argument_rule->correctValues.values[argument_rule->correctValues.size - 1], value);
-
-    return 1;
 }

@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 19:34:41
+ * @lastModifiedTime: 2022-01-28 19:56:34
  */
 
 // Standard library
@@ -14,6 +14,7 @@
 #include "cli/cli.h"
 
 #include "modules/CLI_IHC/ihc.h"
+#include "modules/CLI_IHC/argument_rule/argument.rule.h"
 
 /**
  * @brief Main entry of the program
@@ -36,23 +37,23 @@ int main(int argc, char **argv)
 
     //configureCliFromProgramArgument(argc, argv);
 
-    string_array_t arguments = reduceAttachedArguments(argc, argv);
+    string_array_t arguments = reduce_attached_arguments(argc, argv);
 
     for (int i = 0; i < arguments.size; i++)
     {
         printf("value : %s\n", arguments.values[i]);
     }
 
-    printf("is well formed : %d\n", checkArgumentChain(&arguments));
+    printf("is well formed : %d\n", check_arguments_syntax(&arguments));
 
-    argument_rule_t argument_rule = createArgumentRule("generate", "g");
+    argument_rule_t argument_rule = argument_rule_init("generate", "g");
 
     printf("label: %s\n", argument_rule.label);
     printf("label shortcut: %s\n", argument_rule.labelShortcut);
 
-    addValueToArgumentRule(&argument_rule, "class");
-    addValueToArgumentRule(&argument_rule, "struct");
-    addValueToArgumentRule(&argument_rule, "file");
+    argument_rule_add_rule(&argument_rule, "class");
+    argument_rule_add_rule(&argument_rule, "struct");
+    argument_rule_add_rule(&argument_rule, "file");
 
     for (int i = 0; i < argument_rule.correctValues.size; i++)
     {
