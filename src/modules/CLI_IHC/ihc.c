@@ -6,26 +6,25 @@
 #include <stdlib.h>
 #include <string.h>
 
-string_array_t *reduceAttachedArguments(int count, char **argumentsSource)
+string_array_t reduceAttachedArguments(int count, char **argumentsSource)
 {
     if (count == 0)
-        return 0;
+        return string_array_empty();
 
     char **arguments = removedExeArgumentArray(count, argumentsSource);
     count--;
 
-    string_array_t *reducedArgumentArray = (string_array_t *)malloc(sizeof(string_array_t));
-    reducedArgumentArray->size = count;
+    string_array_t reducedArgumentArray = string_array_init(count);
 
     for (int i = 0; i < count; i++)
     {
         char *argument = arguments[i];
 
         if (checkIfArgumentIsAttached(argument))
-            reducedArgumentArray->size++;
+            reducedArgumentArray.size++;
     }
 
-    reducedArgumentArray->values = (char **)calloc(sizeof(char *), reducedArgumentArray->size);
+    reducedArgumentArray.values = (char **)calloc(sizeof(char *), reducedArgumentArray.size);
 
     int i = 0;
     int extraCursor = 0;
@@ -39,21 +38,21 @@ string_array_t *reduceAttachedArguments(int count, char **argumentsSource)
             if (str1 != NULL && str2 != NULL)
             {
                 int len = strlen(str1);
-                reducedArgumentArray->values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
-                strcpy(reducedArgumentArray->values[i + extraCursor], str1);
+                reducedArgumentArray.values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
+                strcpy(reducedArgumentArray.values[i + extraCursor], str1);
 
                 extraCursor++;
 
                 len = strlen(str2);
-                reducedArgumentArray->values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
-                strcpy(reducedArgumentArray->values[i + extraCursor], str2);
+                reducedArgumentArray.values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
+                strcpy(reducedArgumentArray.values[i + extraCursor], str2);
             }
         }
         else
         {
             int len = strlen(arguments[i]);
-            reducedArgumentArray->values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
-            strcpy(reducedArgumentArray->values[i + extraCursor], arguments[i]);
+            reducedArgumentArray.values[i + extraCursor] = (char *)malloc(sizeof(char) * len);
+            strcpy(reducedArgumentArray.values[i + extraCursor], arguments[i]);
         }
 
         i++;
@@ -148,7 +147,7 @@ argument_rule_t createArgumentRule(const char *label, const char *labelShortcut)
 
     argument_rule.label = NULL;
     argument_rule.labelShortcut = NULL;
-    argument_rule.correctValues = NULL;
+    argument_rule.correctValues = string_array_empty();
 
     if (label == NULL)
         return argument_rule;
@@ -167,25 +166,18 @@ argument_rule_t createArgumentRule(const char *label, const char *labelShortcut)
     return argument_rule;
 }
 
-int addValueToArgumentRule(argument_rule_t *argumentRule, const char *value)
+int addValueToArgumentRule(argument_rule_t *argument_rule, const char *value)
 {
-    if (argumentRule == NULL)
+    if (argument_rule == NULL)
         return 0;
 
-    if (argumentRule->correctValues == NULL)
-    {
-        argumentRule->correctValues = (string_array_t *)malloc(sizeof(string_array_t));
-        argumentRule->correctValues->size = 1;
-        argumentRule->correctValues->values = (char **)malloc(sizeof(char *) * 1);
-    }
+    if (string_array_is_empty(&argument_rule->correctValues))
+        argument_rule->correctValues = string_array_init(1);
     else
-    {
-        argumentRule->correctValues->size = argumentRule->correctValues->size + 1;
-        argumentRule->correctValues->values = (char **)realloc(argumentRule->correctValues->values, sizeof(char *) * argumentRule->correctValues->size);
-    }
+        string_array_resize(&argument_rule->correctValues, argument_rule->correctValues.size + 1);
 
-    argumentRule->correctValues->values[argumentRule->correctValues->size - 1] = (char *)malloc(sizeof(char) * strlen(value));
-    strcpy(argumentRule->correctValues->values[argumentRule->correctValues->size - 1], value);
+    argument_rule->correctValues.values[argument_rule->correctValues.size - 1] = (char *)malloc(sizeof(char) * strlen(value));
+    strcpy(argument_rule->correctValues.values[argument_rule->correctValues.size - 1], value);
 
     return 1;
 }

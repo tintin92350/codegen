@@ -1,25 +1,22 @@
-/*
+/**
  * @author: Quentin ROIC <quentin.rodic.pro@outlook.fr>
  * @date: 27-01-2022 9:11:21 am
  * @lastModifiedBy: Quentin ROSIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 27-01-2022 9:11:21 am
+ * @lastModifiedTime: 2022-01-28 19:11:13
  */
 
 #ifndef CLI_IHC
 #define CLI_IHC
 
-struct string_array {
-    int size;
-    char** values;
+#include "../../utils/string.array.h"
+
+struct argument_rule
+{
+    char *label;
+    char *labelShortcut;
+    string_array_t correctValues;
 };
 
-struct argument_rule {
-    char* label;
-    char* labelShortcut;
-    struct string_array* correctValues;
-};
-
-typedef struct string_array string_array_t;
 typedef struct argument_rule argument_rule_t;
 
 /**
@@ -29,11 +26,11 @@ typedef struct argument_rule argument_rule_t;
  * 
  * @param count 
  * @param arguments 
- * @return string_array_t* 
+ * @return string_array_t 
  */
-string_array_t* reduceAttachedArguments(int count, char **arguments);
+string_array_t reduceAttachedArguments(int count, char **arguments);
 
-short int checkArgumentChain(string_array_t* arguments);
+short int checkArgumentChain(string_array_t *arguments);
 
 /**
  * @brief Check if an argument is formed with the form of --LABEL=CONTENT
@@ -45,9 +42,9 @@ short int checkIfArgumentIsAttached(char *argument);
 
 void splitAttachedArgumentInTwoString(char *src, char **dst1, char **dst2);
 
-char** removedExeArgumentArray(int count, char **arguments);
+char **removedExeArgumentArray(int count, char **arguments);
 
-argument_rule_t createArgumentRule(const char* label, const char* labelShortcut);
-int addValueToArgumentRule(argument_rule_t* argumentRule, const char* value);
+argument_rule_t createArgumentRule(const char *label, const char *labelShortcut);
+int addValueToArgumentRule(argument_rule_t *argumentRule, const char *value);
 
 #endif // CLI_IHC

@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 11:35:24
+ * @lastModifiedTime: 2022-01-28 19:34:41
  */
 
 // Standard library
@@ -36,14 +36,14 @@ int main(int argc, char **argv)
 
     //configureCliFromProgramArgument(argc, argv);
 
-    string_array_t *arguments = reduceAttachedArguments(argc, argv);
+    string_array_t arguments = reduceAttachedArguments(argc, argv);
 
-    for (int i = 0; i < arguments->size; i++)
+    for (int i = 0; i < arguments.size; i++)
     {
-        printf("value : %s\n", arguments->values[i]);
+        printf("value : %s\n", arguments.values[i]);
     }
 
-    printf("is well formed : %d\n", checkArgumentChain(arguments));
+    printf("is well formed : %d\n", checkArgumentChain(&arguments));
 
     argument_rule_t argument_rule = createArgumentRule("generate", "g");
 
@@ -54,9 +54,9 @@ int main(int argc, char **argv)
     addValueToArgumentRule(&argument_rule, "struct");
     addValueToArgumentRule(&argument_rule, "file");
 
-    for (int i = 0; i < argument_rule.correctValues->size; i++)
+    for (int i = 0; i < argument_rule.correctValues.size; i++)
     {
-        printf("\t%s\n", argument_rule.correctValues->values[i]);
+        printf("\t%s\n", argument_rule.correctValues.values[i]);
     }
 
     return EXIT_SUCCESS;
