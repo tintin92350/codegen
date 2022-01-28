@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-26 23:08:09
+ * @lastModifiedTime: 2022-01-28 11:29:12
  */
 
 // Standard library
@@ -36,12 +36,12 @@ int main(int argc, char **argv)
 
     //configureCliFromProgramArgument(argc, argv);
 
-    string_array_t* out = reduceAttachedArguments(argc, argv);
+    string_array_t* arguments = reduceAttachedArguments(argc, argv);
 
 
-    for (int i = 0; i < out->size; i++)
+    for (int i = 0; i < arguments->size; i++)
     {
-        printf("value : %s\n", out->values[i]);
+        printf("value : %s\n", arguments->values[i]);
     }
 
     return EXIT_SUCCESS;

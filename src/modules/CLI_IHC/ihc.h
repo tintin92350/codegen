@@ -15,7 +15,18 @@ struct StringArray {
 
 typedef struct StringArray string_array_t;
 
+/**
+ * @brief STEP 01 of argument processing
+ * 
+ * Reduce the argument into array by spliting attached argument (LABEL=CONTENT)
+ * 
+ * @param count 
+ * @param arguments 
+ * @return string_array_t* 
+ */
 string_array_t* reduceAttachedArguments(int count, char **arguments);
+
+short int checkArgumentChain(string_array_t* arguments);
 
 /**
  * @brief Check if an argument is formed with the form of --LABEL=CONTENT

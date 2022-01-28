@@ -62,6 +62,40 @@ string_array_t *reduceAttachedArguments(int count, char **argumentsSource)
     return reducedArgumentArray;
 }
 
+short int checkArgumentChain(string_array_t *arguments)
+{
+
+    int checkingType = 0; // Checking for argument label
+
+    for (int i = 0; i < arguments->size; i++)
+    {
+        switch (checkingType)
+        {
+        case 0:
+            if (arguments->values[i][0] != '-')
+            {
+                return 0;
+            }
+            else
+            {
+                checkingType = 1;
+            }
+            break;
+        case 1:
+        
+            if (arguments->values[i][0] != '-')
+            {
+                return 0;
+            }
+            else
+            {
+                checkingType = 1;
+            }
+        break;
+        }
+    }
+}
+
 short int checkIfArgumentIsAttached(char *argument)
 {
     regex_t regex;
