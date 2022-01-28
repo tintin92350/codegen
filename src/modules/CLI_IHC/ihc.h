@@ -8,12 +8,19 @@
 #ifndef CLI_IHC
 #define CLI_IHC
 
-struct StringArray {
+struct string_array {
     int size;
     char** values;
 };
 
-typedef struct StringArray string_array_t;
+struct argument_rule {
+    char* label;
+    char* labelShortcut;
+    struct string_array* correctValues;
+};
+
+typedef struct string_array string_array_t;
+typedef struct argument_rule argument_rule_t;
 
 /**
  * @brief STEP 01 of argument processing
@@ -39,5 +46,8 @@ short int checkIfArgumentIsAttached(char *argument);
 void splitAttachedArgumentInTwoString(char *src, char **dst1, char **dst2);
 
 char** removedExeArgumentArray(int count, char **arguments);
+
+argument_rule_t createArgumentRule(const char* label, const char* labelShortcut);
+int addValueToArgumentRule(argument_rule_t* argumentRule, const char* value);
 
 #endif // CLI_IHC

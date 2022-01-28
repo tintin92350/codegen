@@ -141,3 +141,51 @@ char **removedExeArgumentArray(int count, char **arguments)
 
     return array;
 }
+
+argument_rule_t createArgumentRule(const char *label, const char *labelShortcut)
+{
+    argument_rule_t argument_rule;
+
+    argument_rule.label = NULL;
+    argument_rule.labelShortcut = NULL;
+    argument_rule.correctValues = NULL;
+
+    if (label == NULL)
+        return argument_rule;
+
+    int labelLength = strlen(label);
+    argument_rule.label = (char *)malloc(sizeof(char) * labelLength);
+    strcpy(argument_rule.label, label);
+
+    if (labelShortcut != NULL)
+    {
+        int labelShortcutLength = strlen(labelShortcut);
+        argument_rule.labelShortcut = (char *)malloc(sizeof(char) * labelShortcutLength);
+        strcpy(argument_rule.labelShortcut, labelShortcut);
+    }
+
+    return argument_rule;
+}
+
+int addValueToArgumentRule(argument_rule_t *argumentRule, const char *value)
+{
+    if (argumentRule == NULL)
+        return 0;
+
+    if (argumentRule->correctValues == NULL)
+    {
+        argumentRule->correctValues = (string_array_t *)malloc(sizeof(string_array_t));
+        argumentRule->correctValues->size = 1;
+        argumentRule->correctValues->values = (char **)malloc(sizeof(char *) * 1);
+    }
+    else
+    {
+        argumentRule->correctValues->size = argumentRule->correctValues->size + 1;
+        argumentRule->correctValues->values = (char **)realloc(argumentRule->correctValues->values, sizeof(char *) * argumentRule->correctValues->size);
+    }
+
+    argumentRule->correctValues->values[argumentRule->correctValues->size - 1] = (char *)malloc(sizeof(char) * strlen(value));
+    strcpy(argumentRule->correctValues->values[argumentRule->correctValues->size - 1], value);
+
+    return 1;
+}

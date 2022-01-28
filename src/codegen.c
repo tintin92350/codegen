@@ -45,5 +45,19 @@ int main(int argc, char **argv)
 
     printf("is well formed : %d\n", checkArgumentChain(arguments));
 
+    argument_rule_t argument_rule = createArgumentRule("generate", "g");
+
+    printf("label: %s\n", argument_rule.label);
+    printf("label shortcut: %s\n", argument_rule.labelShortcut);
+
+    addValueToArgumentRule(&argument_rule, "class");
+    addValueToArgumentRule(&argument_rule, "struct");
+    addValueToArgumentRule(&argument_rule, "file");
+
+    for (int i = 0; i < argument_rule.correctValues->size; i++)
+    {
+        printf("\t%s\n", argument_rule.correctValues->values[i]);
+    }
+
     return EXIT_SUCCESS;
 }
