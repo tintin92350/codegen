@@ -85,6 +85,58 @@ short int check_arguments_syntax(string_array_t *arguments)
     return 1;
 }
 
+int is_parameter(char *str)
+{
+    int len = strlen(str);
+
+    return len >= 3 ? ((str[0] == '-') + (str[1] == '-')) : (len >= 2 ? (str[0] == '-') : 0);
+}
+
+short int check_business_error(string_array_t *arguments, argument_rule_array_t *arguments_rules)
+{
+    argument_rule_array_t arguments_real = argument_rule_array_init(arguments->size);
+
+    for (int i = 0; i < arguments->size; i++)
+    {
+        short int is_parameter_value = is_parameter(arguments->values[i]);
+
+        if (is_parameter_value > 0)
+        {
+            argument_rule_t argument_rule = argument_rule_init(arguments->values[i], arguments->values[i]);
+            argument_rule_array_add(&arguments_real, &argument_rule);
+        }
+        else
+        {
+            argument_rule_add_rule(&arguments_real.values[arguments_real.cursor - 1], arguments->values[i]);
+        }
+    }
+
+    for (unsigned int i = 0; i < arguments_real.cursor; i++)
+    {
+        int is_parameter_value = is_parameter(arguments->values[i]);
+        short int no_business_rule = 1;
+
+        for (unsigned int j = 0; j < arguments_rules->size; j++)
+        {
+            char *label = arguments_real.values[i].label + is_parameter_value;
+
+            if (argument_rule_test_label_and_shortcut(&arguments_rules->values[j], label))
+            {
+                no_business_rule = 0;
+                char *value = string_array_is_empty(&arguments_real.values[i].correct_values) ? NULL : arguments_real.values[i].correct_values.values[0];
+
+                if (!argument_rule_test_correct_values(&arguments_rules->values[j], value))
+                    return 0;
+            }
+        }
+
+        if (no_business_rule)
+            return 0;
+    }
+
+    return 1;
+}
+
 short int check_if_argument_is_attached(char *argument)
 {
     regex_t regex;

@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 19:56:34
+ * @lastModifiedTime: 2022-01-29 20:02:46
  */
 
 // Standard library
@@ -33,32 +33,25 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    printCodegenLogoAndVersion();
-
     //configureCliFromProgramArgument(argc, argv);
 
     string_array_t arguments = reduce_attached_arguments(argc, argv);
 
-    for (int i = 0; i < arguments.size; i++)
+    if (!check_arguments_syntax(&arguments))
     {
-        printf("value : %s\n", arguments.values[i]);
+        printf("\n\033[0;31m/!\\ The syntax is incorrect ! Please use help command to see which syntax is right\033[0m\n\n");
+        return EXIT_FAILURE;
     }
 
-    printf("is well formed : %d\n", check_arguments_syntax(&arguments));
+    argument_rule_array_t program_arguments = configure_cli_commands();
 
-    argument_rule_t argument_rule = argument_rule_init("generate", "g");
-
-    printf("label: %s\n", argument_rule.label);
-    printf("label shortcut: %s\n", argument_rule.labelShortcut);
-
-    argument_rule_add_rule(&argument_rule, "class");
-    argument_rule_add_rule(&argument_rule, "struct");
-    argument_rule_add_rule(&argument_rule, "file");
-
-    for (int i = 0; i < argument_rule.correctValues.size; i++)
+    if (!check_business_error(&arguments, &program_arguments))
     {
-        printf("\t%s\n", argument_rule.correctValues.values[i]);
+        printf("\n\033[0;31m/!\\ The syntax is incorrect ! Please use help command to see which syntax is right\033[0m\n\n");
+        return EXIT_FAILURE;
     }
+
+    printCodegenLogoAndVersion();
 
     return EXIT_SUCCESS;
 }

@@ -2,13 +2,14 @@
  * @author: Quentin ROIC <quentin.rodic.pro@outlook.fr>
  * @date: 27-01-2022 9:11:21 am
  * @lastModifiedBy: Quentin ROSIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-28 19:59:06
+ * @lastModifiedTime: 2022-01-28 22:50:43
  */
 
 #ifndef CLI_IHC
 #define CLI_IHC
 
 #include "../../utils/string.array.h"
+#include "argument_rule/argument.rule.h"
 
 /**
  * @brief STEP 01 of argument processing
@@ -30,6 +31,16 @@ string_array_t reduce_attached_arguments(int count, char **arguments);
  * @return short int 
  */
 short int check_arguments_syntax(string_array_t *arguments);
+
+/**
+ * @brief STEP 03 of argument processing
+ * 
+ * Check the business syntax of arguments based on argument label and value.
+ * 
+ * @param arguments 
+ * @return short int 
+ */
+short int check_business_error(string_array_t *arguments, argument_rule_array_t *arguments_rules);
 
 /**
  * @brief Check if an argument is formed with the form of --LABEL=CONTENT

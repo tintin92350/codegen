@@ -29,7 +29,7 @@ void printCodegenLogoAndVersion()
            "   Beta Version                 \n\n");
 }
 
-int configureCliFromProgramArgument(int argc, char ** argv)
+int configureCliFromProgramArgument(int argc, char **argv)
 {
     // Retrieve working directory
     if (getcwd(context.workingDirectory, sizeof(context.workingDirectory)) == NULL)
@@ -42,4 +42,17 @@ int configureCliFromProgramArgument(int argc, char ** argv)
     context.argv = argv;
 
     return 1;
+}
+
+argument_rule_array_t configure_cli_commands()
+{
+    argument_rule_array_t argument_rules = argument_rule_array_init(1);
+    argument_rule_t argument_rule = argument_rule_init("generate", "g");
+
+    argument_rule_add_rule(&argument_rule, "class");
+    argument_rule_add_rule(&argument_rule, "struct");
+    argument_rule_add_rule(&argument_rule, "file");
+    argument_rule_array_add(&argument_rules, &argument_rule);
+
+    return argument_rules;
 }
