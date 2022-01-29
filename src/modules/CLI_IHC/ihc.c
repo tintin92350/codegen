@@ -127,10 +127,12 @@ short int check_business_error(string_array_t *arguments, argument_rule_array_t 
 
                 if (!argument_rule_test_correct_values(&arguments_rules->values[j], value)) {
 
-                    if (value == NULL) {
-                    printf("\n\033[0;31m/!\\ %s require one value\033[0m\n", arguments_rules->values[j].label);
-                    } else {
-                    printf("\n\033[0;31m/!\\ Unknown argument value : %s\033[0m\n", value);
+                    if (value == NULL) 
+                    {
+                        printf("\n\033[0;31m/!\\ %s require one value\033[0m\n", arguments_rules->values[j].label);
+                    } else
+                    {
+                        printf("\n\033[0;31m/!\\ Unknown argument value : %s\033[0m\n", value);
                     }
                     printf("Here are the possible values: \n");
                     print_arguments_rules(&arguments_rules->values[j]);
