@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-29 20:02:46
+ * @lastModifiedTime: 2022-01-29 20:05:46
  */
 
 // Standard library
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
     if (!check_business_error(&arguments, &program_arguments))
     {
-        printf("\n\033[0;31m/!\\ The syntax is incorrect ! Please use help command to see which syntax is right\033[0m\n\n");
+        printf("\n\033[0;31m/!\\ The business syntax is incorrect ! Please use help command to see which syntax is right\033[0m\n\n");
         return EXIT_FAILURE;
     }
 

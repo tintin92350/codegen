@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-28 18:25:38
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-29 19:49:02
+ * @lastModifiedTime: 2022-01-29 21:08:26
  */
 
 #ifndef IHC_ARGUMENT_RULE_HEADER
@@ -55,6 +55,8 @@ int argument_rule_add_rule(argument_rule_t *argument_rule, const char *value);
 
 short int argument_rule_test_label_and_shortcut(argument_rule_t *argument_rule, char *label);
 short int argument_rule_test_correct_values(argument_rule_t *argument_rule, char *value);
+
+void print_arguments_rules(argument_rule_t *argument_rule);
 
 /**
  * @brief 

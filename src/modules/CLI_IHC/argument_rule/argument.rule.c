@@ -43,7 +43,7 @@ int argument_rule_add_rule(argument_rule_t *argument_rule, const char *value)
 
 short int argument_rule_test_label_and_shortcut(argument_rule_t *argument_rule, char *label)
 {
-    return strcmp(argument_rule->label, label) == 0 || strcmp(argument_rule->label_shortcut, label) == 0;
+    return strcmp(argument_rule->label, label) == 0 || (argument_rule->label_shortcut != NULL && strcmp(argument_rule->label_shortcut, label) == 0);
 }
 
 short int argument_rule_test_correct_values(argument_rule_t *argument_rule, char *value)
@@ -52,8 +52,10 @@ short int argument_rule_test_correct_values(argument_rule_t *argument_rule, char
         return string_array_is_empty(&argument_rule->correct_values);
 
     for (int i = 0; i < argument_rule->correct_values.size; i++)
+    {
         if (strcmp(argument_rule->correct_values.values[i], value) == 0)
             return 1;
+    }
 
     return 0;
 }
@@ -67,6 +69,14 @@ argument_rule_array_t argument_rule_array_init(const int initial_size)
     array.cursor = 0;
 
     return array;
+}
+
+void print_arguments_rules(argument_rule_t *argument_rule)
+{
+    for (int i = 0; i < argument_rule->correct_values.size; i++)
+    {
+        printf("-%s\n", argument_rule->correct_values.values[i]);
+    }
 }
 
 int argument_rule_array_add(argument_rule_array_t *argument_rule_array, argument_rule_t *argument_rule)

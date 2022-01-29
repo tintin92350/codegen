@@ -46,13 +46,17 @@ int configureCliFromProgramArgument(int argc, char **argv)
 
 argument_rule_array_t configure_cli_commands()
 {
-    argument_rule_array_t argument_rules = argument_rule_array_init(1);
-    argument_rule_t argument_rule = argument_rule_init("generate", "g");
+    argument_rule_array_t argument_rules = argument_rule_array_init(2);
+    
+    argument_rule_t argument_rule_generate = argument_rule_init("generate", "g");
 
-    argument_rule_add_rule(&argument_rule, "class");
-    argument_rule_add_rule(&argument_rule, "struct");
-    argument_rule_add_rule(&argument_rule, "file");
-    argument_rule_array_add(&argument_rules, &argument_rule);
+    argument_rule_add_rule(&argument_rule_generate, "class");
+    argument_rule_add_rule(&argument_rule_generate, "struct");
+    argument_rule_add_rule(&argument_rule_generate, "file");
+    argument_rule_array_add(&argument_rules, &argument_rule_generate);
+    
+    argument_rule_t argument_rule_git = argument_rule_init("git", NULL);
+    argument_rule_array_add(&argument_rules, &argument_rule_git);
 
     return argument_rules;
 }

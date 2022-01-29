@@ -113,25 +113,33 @@ short int check_business_error(string_array_t *arguments, argument_rule_array_t 
 
     for (unsigned int i = 0; i < arguments_real.cursor; i++)
     {
-        int is_parameter_value = is_parameter(arguments->values[i]);
+        int is_parameter_value = is_parameter(arguments_real.values[i].label);
         short int no_business_rule = 1;
+        char* label = arguments_real.values[i].label + is_parameter_value;
 
         for (unsigned int j = 0; j < arguments_rules->size; j++)
         {
-            char *label = arguments_real.values[i].label + is_parameter_value;
 
             if (argument_rule_test_label_and_shortcut(&arguments_rules->values[j], label))
             {
                 no_business_rule = 0;
                 char *value = string_array_is_empty(&arguments_real.values[i].correct_values) ? NULL : arguments_real.values[i].correct_values.values[0];
 
-                if (!argument_rule_test_correct_values(&arguments_rules->values[j], value))
+                if (!argument_rule_test_correct_values(&arguments_rules->values[j], value)) {
+                    printf("\n\033[0;31m/!\\ Unknown argument value : %s\033[0m\n", value);
+                    printf("Here are the possible values: \n");
+                    print_arguments_rules(&arguments_rules->values[j]);
+
                     return 0;
+                }
             }
         }
 
-        if (no_business_rule)
+        if (no_business_rule) {
+            printf("\n\033[0;31m/!\\ Unknown command : %s\033[0m\n", label);
+
             return 0;
+        }
     }
 
     return 1;
