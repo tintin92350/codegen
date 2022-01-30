@@ -9,11 +9,12 @@
 #define CLI_HEADER
 
 #include "../modules/CLI_IHC/argument_rule/argument.rule.h"
+#include "../modules/CLI_IHC/command/command.h"
 
 void printCodegenLogoAndVersion();
 
 int configureCliFromProgramArgument(int argc, char **argv);
 
-argument_rule_array_t configure_cli_commands();
+command_array_t configure_cli_commands();
 
 #endif // CLI_HEADER

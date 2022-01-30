@@ -44,11 +44,17 @@ int configureCliFromProgramArgument(int argc, char **argv)
     return 1;
 }
 
-argument_rule_array_t configure_cli_commands()
+command_array_t configure_cli_commands()
 {
-    argument_rule_array_t argument_rules = argument_rule_array_init(2);
-    
-    argument_rule_t argument_rule_generate = argument_rule_init("generate", "g");
+    command_array_t commands = command_array_init(1);
+
+    // Add 'new' command
+
+    command_t new_command = command_init("new", 2);
+
+    command_array_add(&commands, &new_command);
+
+    /*argument_rule_t argument_rule_generate = argument_rule_init("generate", "g");
 
     argument_rule_add_rule(&argument_rule_generate, "class");
     argument_rule_add_rule(&argument_rule_generate, "struct");
@@ -56,7 +62,7 @@ argument_rule_array_t configure_cli_commands()
     argument_rule_array_add(&argument_rules, &argument_rule_generate);
     
     argument_rule_t argument_rule_git = argument_rule_init("git", NULL);
-    argument_rule_array_add(&argument_rules, &argument_rule_git);
+    argument_rule_array_add(&argument_rules, &argument_rule_git);*/
 
-    return argument_rules;
+    return commands;
 }

@@ -67,7 +67,10 @@ short int check_arguments_syntax(string_array_t *arguments)
 {
     int lastCheckingType = -1; // Checking for argument label
 
-    for (int i = 0; i < arguments->size; i++)
+    if (arguments->values[0][0] == '-')
+        return 0;
+
+    for (int i = 1; i < arguments->size; i++)
     {
         char argumentFirstLetter = arguments->values[i][0];
 
@@ -92,7 +95,7 @@ int is_parameter(char *str)
     return len >= 3 ? ((str[0] == '-') + (str[1] == '-')) : (len >= 2 ? (str[0] == '-') : 0);
 }
 
-short int check_business_error(string_array_t *arguments, argument_rule_array_t *arguments_rules)
+short int check_business_error(command_t *command, string_array_t *arguments)
 {
     argument_rule_array_t arguments_real = argument_rule_array_init(arguments->size);
 
@@ -115,34 +118,37 @@ short int check_business_error(string_array_t *arguments, argument_rule_array_t 
     {
         int is_parameter_value = is_parameter(arguments_real.values[i].label);
         short int no_business_rule = 1;
-        char* label = arguments_real.values[i].label + is_parameter_value;
+        char *label = arguments_real.values[i].label + is_parameter_value;
 
-        for (unsigned int j = 0; j < arguments_rules->size; j++)
+        for (unsigned int j = 0; j < command->arguments_rules.size; j++)
         {
 
-            if (argument_rule_test_label_and_shortcut(&arguments_rules->values[j], label))
+            if (argument_rule_test_label_and_shortcut(&command->arguments_rules.values[j], label))
             {
                 no_business_rule = 0;
                 char *value = string_array_is_empty(&arguments_real.values[i].correct_values) ? NULL : arguments_real.values[i].correct_values.values[0];
 
-                if (!argument_rule_test_correct_values(&arguments_rules->values[j], value)) {
+                if (!argument_rule_test_correct_values(&command->arguments_rules.values[j], value))
+                {
 
-                    if (value == NULL) 
+                    if (value == NULL)
                     {
-                        printf("\n\033[0;31m/!\\ %s require one value\033[0m\n", arguments_rules->values[j].label);
-                    } else
+                        printf("\n\033[0;31m/!\\ %s require one value\033[0m\n", command->arguments_rules.values[j].label);
+                    }
+                    else
                     {
                         printf("\n\033[0;31m/!\\ Unknown argument value : %s\033[0m\n", value);
                     }
                     printf("Here are the possible values: \n");
-                    print_arguments_rules(&arguments_rules->values[j]);
+                    print_arguments_rules(&command->arguments_rules.values[j]);
 
                     return 0;
                 }
             }
         }
 
-        if (no_business_rule) {
+        if (no_business_rule)
+        {
             printf("\n\033[0;31m/!\\ Unknown command : %s\033[0m\n", label);
 
             return 0;

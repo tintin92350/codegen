@@ -31,7 +31,7 @@ int argument_rule_add_rule(argument_rule_t *argument_rule, const char *value)
     if (argument_rule == NULL)
         return 0;
 
-    if (string_array_is_empty(&argument_rule->correct_values))
+    if (argument_rule->correct_values.values == NULL || string_array_is_empty(&argument_rule->correct_values))
         argument_rule->correct_values = string_array_init(1);
     else
         string_array_resize(&argument_rule->correct_values, argument_rule->correct_values.size + 1);

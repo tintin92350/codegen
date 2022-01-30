@@ -1,5 +1,5 @@
-## CLI Argument Parsing Module
+## CLI Argument Processing Module
 
 ## Description
 
-That module will parse an argument input array into business handling array
+That module will process business with argument input array

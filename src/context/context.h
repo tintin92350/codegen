@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 23:03:11
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-26 23:06:26
+ * @lastModifiedTime: 2022-01-30 15:10:47
  */
 
 #ifndef CONTEXT_HEADER
@@ -15,10 +15,9 @@ struct context
 {
     char workingDirectory[PATH_MAX];
     int argc;
-    char** argv;
+    char **argv;
 };
 
 typedef struct context context_t;
-
 
 #endif // CONTEXT_HEADER

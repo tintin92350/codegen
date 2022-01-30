@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-29 20:05:46
+ * @lastModifiedTime: 2022-01-30 15:25:49
  */
 
 // Standard library
@@ -15,6 +15,7 @@
 
 #include "modules/CLI_IHC/ihc.h"
 #include "modules/CLI_IHC/argument_rule/argument.rule.h"
+#include "modules/CLI_IHC/command/command.h"
 
 /**
  * @brief Main entry of the program
@@ -43,9 +44,17 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    argument_rule_array_t program_arguments = configure_cli_commands();
+    command_array_t program_arguments = configure_cli_commands();
 
-    if (!check_business_error(&arguments, &program_arguments))
+    command_t *found_command = command_find_among_array(program_arguments.values, program_arguments.cursor, argv[1]);
+
+    if (found_command == NULL)
+    {
+        printf("\n\033[0;31m/!\\ Unknown command\033[0m\n\n");
+        return EXIT_FAILURE;
+    }
+
+    if (!check_business_error(found_command, &arguments))
     {
         printf("\n\033[0;31m/!\\ The business syntax is incorrect ! Please use help command to see which syntax is right\033[0m\n\n");
         return EXIT_FAILURE;
