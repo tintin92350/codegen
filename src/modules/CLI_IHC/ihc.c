@@ -148,7 +148,6 @@ short int check_business_error(command_t *command, string_array_t *arguments)
 
                 if (!argument_rule_test_correct_values(&command->arguments_rules.values[j], value))
                 {
-
                     if (value == NULL)
                     {
                         printf("\n\033[0;31m/!\\ %s require one value\033[0m\n", command->arguments_rules.values[j].label);
