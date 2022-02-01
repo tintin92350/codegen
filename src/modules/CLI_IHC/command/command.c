@@ -5,13 +5,14 @@
 
 #include "../../../utils/string.h"
 
-command_t command_init(const char *label, int initial_size)
+command_t command_init(const char *label, short int hasValue, int initial_size)
 {
     command_t command;
 
     copy_string(label, &command.label);
 
     command.arguments_rules = argument_rule_array_init(initial_size);
+    command.hasValue = hasValue;
 
     return command;
 }
@@ -29,8 +30,9 @@ command_t *command_find_among_array(command_t *commands, int size, const char *c
     return NULL;
 }
 
-command_array_t command_array_init(int initial_size) {
-    
+command_array_t command_array_init(int initial_size)
+{
+
     command_array_t array;
 
     array.size = initial_size;
@@ -40,8 +42,9 @@ command_array_t command_array_init(int initial_size) {
     return array;
 }
 
-int command_array_add(command_array_t *commands, command_t *command) {
-    
+int command_array_add(command_array_t *commands, command_t *command)
+{
+
     if (commands == NULL || command == NULL)
         return 0;
 

@@ -8,13 +8,23 @@
 
 #include "../../utils/string.h"
 
+short int check_command_syntax(int count, char **command)
+{
+    if (count == 0)
+        return 0;
+
+    if (command[1][0] == '-')
+        return 0;
+
+    return 1;
+}
+
 string_array_t reduce_attached_arguments(int count, char **argumentsSource)
 {
     if (count == 0)
         return string_array_empty();
 
-    char **arguments = flush_argument_string_array(count, argumentsSource);
-    count--;
+    char **arguments = argumentsSource; // flush_argument_string_array(count, argumentsSource);
 
     string_array_t reducedArgumentArray = string_array_init(count);
 
@@ -67,10 +77,10 @@ short int check_arguments_syntax(string_array_t *arguments)
 {
     int lastCheckingType = -1; // Checking for argument label
 
-    if (arguments->values[0][0] == '-')
+    if (arguments->values[0][0] != '-')
         return 0;
 
-    for (int i = 1; i < arguments->size; i++)
+    for (int i = 0; i < arguments->size; i++)
     {
         char argumentFirstLetter = arguments->values[i][0];
 
@@ -97,6 +107,15 @@ int is_parameter(char *str)
 
 short int check_business_error(command_t *command, string_array_t *arguments)
 {
+    // TODO: Create specific errors
+    if (arguments->size <= 0) {
+        return 1;
+    }
+
+    if (command->arguments_rules.cursor <= 0) {
+        return 0;
+    }
+
     argument_rule_array_t arguments_real = argument_rule_array_init(arguments->size);
 
     for (int i = 0; i < arguments->size; i++)
@@ -120,9 +139,8 @@ short int check_business_error(command_t *command, string_array_t *arguments)
         short int no_business_rule = 1;
         char *label = arguments_real.values[i].label + is_parameter_value;
 
-        for (unsigned int j = 0; j < command->arguments_rules.size; j++)
+        for (unsigned int j = 0; j < command->arguments_rules.cursor; j++)
         {
-
             if (argument_rule_test_label_and_shortcut(&command->arguments_rules.values[j], label))
             {
                 no_business_rule = 0;

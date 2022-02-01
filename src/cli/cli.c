@@ -50,19 +50,22 @@ command_array_t configure_cli_commands()
 
     // Add 'new' command
 
-    command_t new_command = command_init("new", 2);
+    command_t new_command = command_init("new", 1, 2);
 
-    command_array_add(&commands, &new_command);
-
-    /*argument_rule_t argument_rule_generate = argument_rule_init("generate", "g");
+    argument_rule_t argument_rule_generate = argument_rule_init("generate", "g");
 
     argument_rule_add_rule(&argument_rule_generate, "class");
     argument_rule_add_rule(&argument_rule_generate, "struct");
     argument_rule_add_rule(&argument_rule_generate, "file");
-    argument_rule_array_add(&argument_rules, &argument_rule_generate);
-    
-    argument_rule_t argument_rule_git = argument_rule_init("git", NULL);
-    argument_rule_array_add(&argument_rules, &argument_rule_git);*/
+    argument_rule_array_add(&new_command.arguments_rules, &argument_rule_generate);
+
+    argument_rule_t argument_rule_author = argument_rule_init("author", "a");
+
+    argument_rule_author.correct_values=string_array_empty();
+
+    argument_rule_array_add(&new_command.arguments_rules, &argument_rule_author);
+
+    command_array_add(&commands, &new_command);
 
     return commands;
 }

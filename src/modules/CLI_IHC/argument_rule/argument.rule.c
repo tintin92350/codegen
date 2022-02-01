@@ -49,7 +49,12 @@ short int argument_rule_test_label_and_shortcut(argument_rule_t *argument_rule, 
 short int argument_rule_test_correct_values(argument_rule_t *argument_rule, char *value)
 {
     if (value == NULL)
-        return string_array_is_empty(&argument_rule->correct_values);
+        return 0;
+
+    if (string_array_is_empty(&argument_rule->correct_values))
+    {
+        return strlen(value);
+    }
 
     for (int i = 0; i < argument_rule->correct_values.size; i++)
     {

@@ -2,7 +2,7 @@
  * @author: Quentin ROIC <quentin.rodic.pro@outlook.fr>
  * @date: 27-01-2022 9:11:21 am
  * @lastModifiedBy: Quentin ROSIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-01-30 15:12:31
+ * @lastModifiedTime: 2022-02-01 23:17:37
  */
 
 #ifndef CLI_IHC
@@ -11,6 +11,8 @@
 #include "../../utils/string.array.h"
 #include "argument_rule/argument.rule.h"
 #include "command/command.h"
+
+short int check_command_syntax(int count, char **command);
 
 /**
  * @brief STEP 01 of argument processing
