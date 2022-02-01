@@ -2,7 +2,7 @@
  * @author: Quentin RODIC <quentin.rodic.pro@outlook.fr>
  * @date:   2022-01-26 22:42:59
  * @lastModifiedBy:   Quentin RODIC <quentin.rodic.pro@outlook.fr>
- * @lastModifiedTime: 2022-02-01 23:50:59
+ * @lastModifiedTime: 2022-02-02 00:01:29
  */
 
 // Standard library
@@ -61,7 +61,7 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
     }
 
-    if (!found_command->hasValue || (found_command->hasValue && argc > 3))
+    if (argc > 2 + found_command->hasValue)
     {
         string_array_t arguments = reduce_attached_arguments(argc - 2 - found_command->hasValue, argv + 2 + found_command->hasValue);
 

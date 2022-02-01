@@ -67,5 +67,10 @@ command_array_t configure_cli_commands()
 
     command_array_add(&commands, &new_command);
 
+
+    command_t test_command = command_init("test", 0, 0);
+
+    command_array_add(&commands, &test_command);
+
     return commands;
 }
